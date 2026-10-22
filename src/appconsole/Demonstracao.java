@@ -65,11 +65,11 @@ public class Demonstracao {
 	}
 
 	public static void menu(BancoMemoria db) {
-		Entrada.reiniciar();
+		Util.reiniciar();
 		boolean continuar = true;
-		while (continuar && !Entrada.encerrada()) {
+		while (continuar && !Util.encerrada()) {
 			exibirMenuPrincipal();
-			String opcao = Entrada.ler("Opção");
+			String opcao = Util.ler("Opção");
 			switch (opcao) {
 			case "1":
 				exibirExemplosDiretos(db);

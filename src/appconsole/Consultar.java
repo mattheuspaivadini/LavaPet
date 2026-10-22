@@ -8,12 +8,13 @@ import modelo.Pet;
 import modelo.Servico;
 import modelo.Tutor;
 import util.BancoMemoria;
+import util.Util;
 
 public class Consultar {
 
 	public static void executar(BancoMemoria db) {
 		boolean continuar = true;
-		while (continuar && !Entrada.encerrada()) {
+		while (continuar && !Util.encerrada()) {
 			System.out.println("\n=== Consultar ===\n"
 					+ "1 Listar tutores\n"
 					+ "2 Listar pets\n"
@@ -22,7 +23,7 @@ public class Consultar {
 					+ "5 Pet por nome/raça/tutor\n"
 					+ "6 Serviço por pet/data/intervalo/valor mínimo\n"
 					+ "0 Voltar");
-			String opcao = Entrada.ler("Opção");
+			String opcao = Util.ler("Opção");
 			switch (opcao) {
 			case "1":
 				listarTutores(db);
@@ -108,14 +109,14 @@ public class Consultar {
 		if (db.query(Tutor.class).isEmpty()) {
 			return null;
 		}
-		Integer id = Entrada.inteiro("ID do tutor");
+		Integer id = Util.inteiro("ID do tutor");
 		while (id != null) {
 			Tutor tutor = buscarTutorPorId(db, id);
 			if (tutor != null) {
 				return tutor;
 			}
 			System.out.println("Tutor não encontrado.");
-			id = Entrada.inteiro("ID do tutor");
+			id = Util.inteiro("ID do tutor");
 		}
 		return null;
 	}
@@ -125,14 +126,14 @@ public class Consultar {
 		if (db.query(Pet.class).isEmpty()) {
 			return null;
 		}
-		Integer id = Entrada.inteiro("ID do pet");
+		Integer id = Util.inteiro("ID do pet");
 		while (id != null) {
 			Pet pet = buscarPetPorId(db, id);
 			if (pet != null) {
 				return pet;
 			}
 			System.out.println("Pet não encontrado.");
-			id = Entrada.inteiro("ID do pet");
+			id = Util.inteiro("ID do pet");
 		}
 		return null;
 	}
@@ -142,14 +143,14 @@ public class Consultar {
 		if (db.query(Servico.class).isEmpty()) {
 			return null;
 		}
-		Integer id = Entrada.inteiro("ID do serviço");
+		Integer id = Util.inteiro("ID do serviço");
 		while (id != null) {
 			Servico servico = buscarServicoPorId(db, id);
 			if (servico != null) {
 				return servico;
 			}
 			System.out.println("Serviço não encontrado.");
-			id = Entrada.inteiro("ID do serviço");
+			id = Util.inteiro("ID do serviço");
 		}
 		return null;
 	}
@@ -161,8 +162,8 @@ public class Consultar {
 			return null;
 		}
 		while (true) {
-			String entrada = Entrada.ler("IDs dos pets (separados por vírgula)");
-			if (Entrada.cancelado(entrada)) {
+			String entrada = Util.ler("IDs dos pets (separados por vírgula)");
+			if (Util.cancelado(entrada)) {
 				return null;
 			}
 			if (entrada.isEmpty()) {
@@ -202,7 +203,7 @@ public class Consultar {
 	}
 
 	private static void consultarTutor(BancoMemoria db) {
-		String trecho = Entrada.texto("Nome ou trecho");
+		String trecho = Util.texto("Nome ou trecho");
 		if (trecho == null) {
 			return;
 		}
@@ -213,8 +214,8 @@ public class Consultar {
 
 	private static void consultaPet(BancoMemoria db) {
 		System.out.println("1 Nome | 2 Raça | 3 Tutor (trecho do nome)");
-		String op = Entrada.ler("Critério");
-		String criterio = Entrada.texto("Valor");
+		String op = Util.ler("Critério");
+		String criterio = Util.texto("Valor");
 		if (criterio == null) {
 			return;
 		}
@@ -248,7 +249,7 @@ public class Consultar {
 
 	private static void consultaServico(BancoMemoria db) {
 		System.out.println("1 Pet (trecho do nome) | 2 Data | 3 Intervalo de datas | 4 Valor mínimo");
-		String op = Entrada.ler("Critério");
+		String op = Util.ler("Critério");
 		if (op.equals("1")) {
 			consultarServicoPorPet(db);
 		} else if (op.equals("2")) {
@@ -263,7 +264,7 @@ public class Consultar {
 	}
 
 	private static void consultarServicoPorPet(BancoMemoria db) {
-		String nomePet = Entrada.texto("Nome do pet");
+		String nomePet = Util.texto("Nome do pet");
 		if (nomePet == null) {
 			return;
 		}
@@ -280,7 +281,7 @@ public class Consultar {
 	}
 
 	private static void consultarServicoPorData(BancoMemoria db) {
-		LocalDate data = Entrada.dataPrompt("Data");
+		LocalDate data = Util.dataPrompt("Data");
 		if (data == null) {
 			return;
 		}
@@ -290,8 +291,8 @@ public class Consultar {
 	}
 
 	private static void consultarServicoPorIntervalo(BancoMemoria db) {
-		LocalDate dataInicial = Entrada.dataPrompt("Data inicial");
-		LocalDate dataFinal = Entrada.dataPrompt("Data final");
+		LocalDate dataInicial = Util.dataPrompt("Data inicial");
+		LocalDate dataFinal = Util.dataPrompt("Data final");
 		if (dataInicial != null && dataFinal != null && !dataFinal.isBefore(dataInicial)) {
 			List<Servico> encontrados = db.query(Servico.class,
 					s -> !s.getData().isBefore(dataInicial) && !s.getData().isAfter(dataFinal));
@@ -302,7 +303,7 @@ public class Consultar {
 	}
 
 	private static void consultarServicoPorValorMinimo(BancoMemoria db) {
-		BigDecimal valorMinimo = Entrada.valorPrompt("Valor mínimo");
+		BigDecimal valorMinimo = Util.valorPrompt("Valor mínimo");
 		if (valorMinimo == null) {
 			return;
 		}

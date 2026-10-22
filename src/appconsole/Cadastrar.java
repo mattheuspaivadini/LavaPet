@@ -7,18 +7,19 @@ import modelo.Pet;
 import modelo.Servico;
 import modelo.Tutor;
 import util.BancoMemoria;
+import util.Util;
 
 public class Cadastrar {
 
 	public static void executar(BancoMemoria db) {
 		boolean continuar = true;
-		while (continuar && !Entrada.encerrada()) {
+		while (continuar && !Util.encerrada()) {
 			System.out.println("\n=== Cadastrar ===\n"
 					+ "1 Tutor\n"
 					+ "2 Pet\n"
 					+ "3 Serviço\n"
 					+ "0 Voltar");
-			String opcao = Entrada.ler("Opção");
+			String opcao = Util.ler("Opção");
 			switch (opcao) {
 			case "1":
 				cadastrarTutor(db);
@@ -40,7 +41,7 @@ public class Cadastrar {
 	}
 
 	public static Tutor cadastrarTutor(BancoMemoria db) {
-		String nome = Entrada.texto("Nome do tutor");
+		String nome = Util.texto("Nome do tutor");
 		if (nome == null) {
 			return null;
 		}
@@ -58,11 +59,11 @@ public class Cadastrar {
 			return null;
 		}
 
-		String nome = Entrada.texto("Nome do pet");
+		String nome = Util.texto("Nome do pet");
 		if (nome == null) {
 			return null;
 		}
-		String raca = Entrada.texto("Raça");
+		String raca = Util.texto("Raça");
 		if (raca == null) {
 			return null;
 		}
@@ -80,11 +81,11 @@ public class Cadastrar {
 	}
 
 	public static Servico cadastrarServico(BancoMemoria db) {
-		LocalDate data = Entrada.dataPrompt("Data do serviço");
+		LocalDate data = Util.dataPrompt("Data do serviço");
 		if (data == null) {
 			return null;
 		}
-		BigDecimal valor = Entrada.valorPrompt("Valor do serviço");
+		BigDecimal valor = Util.valorPrompt("Valor do serviço");
 		if (valor == null) {
 			return null;
 		}

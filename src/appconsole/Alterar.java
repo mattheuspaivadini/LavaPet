@@ -8,18 +8,19 @@ import modelo.Pet;
 import modelo.Servico;
 import modelo.Tutor;
 import util.BancoMemoria;
+import util.Util;
 
 public class Alterar {
 
 	public static void executar(BancoMemoria db) {
 		boolean continuar = true;
-		while (continuar && !Entrada.encerrada()) {
+		while (continuar && !Util.encerrada()) {
 			System.out.println("\n=== Alterar ===\n"
 					+ "1 Tutor\n"
 					+ "2 Pet\n"
 					+ "3 Serviço\n"
 					+ "0 Voltar");
-			String opcao = Entrada.ler("Opção");
+			String opcao = Util.ler("Opção");
 			switch (opcao) {
 			case "1":
 				alterarTutor(db);
@@ -46,8 +47,8 @@ public class Alterar {
 			return;
 		}
 
-		String nome = Entrada.textoOpcional("Novo nome", tutor.getNome());
-		if (nome == null || Entrada.encerrada()) {
+		String nome = Util.textoOpcional("Novo nome", tutor.getNome());
+		if (nome == null || Util.encerrada()) {
 			return;
 		}
 
@@ -63,23 +64,23 @@ public class Alterar {
 			return;
 		}
 
-		String nome = Entrada.textoOpcional("Novo nome", pet.getNome());
+		String nome = Util.textoOpcional("Novo nome", pet.getNome());
 		if (nome == null) {
 			return;
 		}
-		String raca = Entrada.textoOpcional("Nova raça", pet.getRaca());
+		String raca = Util.textoOpcional("Nova raça", pet.getRaca());
 		if (raca == null) {
 			return;
 		}
 
 		Tutor novoTutor = pet.getTutor();
-		if (Entrada.confirmar("Deseja alterar o tutor")) {
+		if (Util.confirmar("Deseja alterar o tutor")) {
 			novoTutor = Consultar.escolherTutor(db);
 			if (novoTutor == null) {
 				return;
 			}
 		}
-		if (Entrada.encerrada()) {
+		if (Util.encerrada()) {
 			return;
 		}
 
@@ -97,23 +98,23 @@ public class Alterar {
 			return;
 		}
 
-		LocalDate data = Entrada.dataOpcional("Nova data", servico.getData());
+		LocalDate data = Util.dataOpcional("Nova data", servico.getData());
 		if (data == null) {
 			return;
 		}
-		BigDecimal valor = Entrada.valorOpcional("Novo valor", servico.getValor());
+		BigDecimal valor = Util.valorOpcional("Novo valor", servico.getValor());
 		if (valor == null) {
 			return;
 		}
 
 		List<Pet> pets = null;
-		if (Entrada.confirmar("Deseja alterar os pets do serviço")) {
+		if (Util.confirmar("Deseja alterar os pets do serviço")) {
 			pets = Consultar.escolherPets(db);
 			if (pets == null) {
 				return;
 			}
 		}
-		if (Entrada.encerrada()) {
+		if (Util.encerrada()) {
 			return;
 		}
 

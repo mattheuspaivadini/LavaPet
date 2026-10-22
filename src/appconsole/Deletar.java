@@ -6,18 +6,19 @@ import modelo.Pet;
 import modelo.Servico;
 import modelo.Tutor;
 import util.BancoMemoria;
+import util.Util;
 
 public class Deletar {
 
 	public static void executar(BancoMemoria db) {
 		boolean continuar = true;
-		while (continuar && !Entrada.encerrada()) {
+		while (continuar && !Util.encerrada()) {
 			System.out.println("\n=== Deletar ===\n"
 					+ "1 Tutor (com seus pets)\n"
 					+ "2 Pet\n"
 					+ "3 Serviço\n"
 					+ "0 Voltar");
-			String opcao = Entrada.ler("Opção");
+			String opcao = Util.ler("Opção");
 			switch (opcao) {
 			case "1":
 				deletarTutor(db);
@@ -43,7 +44,7 @@ public class Deletar {
 		if (tutor == null) {
 			return;
 		}
-		if (!Entrada.confirmar("Excluir o tutor e todos os seus pets")) {
+		if (!Util.confirmar("Excluir o tutor e todos os seus pets")) {
 			System.out.println("Operação cancelada.");
 			return;
 		}
@@ -63,7 +64,7 @@ public class Deletar {
 		if (pet == null) {
 			return;
 		}
-		if (!Entrada.confirmar("Excluir o pet e remover seus vínculos")) {
+		if (!Util.confirmar("Excluir o pet e remover seus vínculos")) {
 			System.out.println("Operação cancelada.");
 			return;
 		}
@@ -79,7 +80,7 @@ public class Deletar {
 		if (servico == null) {
 			return;
 		}
-		if (!Entrada.confirmar("Excluir o serviço e remover seus vínculos")) {
+		if (!Util.confirmar("Excluir o serviço e remover seus vínculos")) {
 			System.out.println("Operação cancelada.");
 			return;
 		}
