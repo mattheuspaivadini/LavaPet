@@ -7,7 +7,19 @@ import com.db4o.config.EmbeddedConfiguration;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+<<<<<<< HEAD
 
+=======
+>>>>>>> crud-appconsole
 public class Banco {
+    private static String BANCO_ARQUIVO = "lavapet.db4o";
     
-}
+    public static EmbeddedConfiguration obterConfiguracao() {
+        EmbeddedConfiguration config = Db4oEmbedded.newConfiguration();
+
+        config.common.objectClass(Tutor.class).store();
+        config.common.objectClass(Pet.class).store();
+        config.common.objectClass(Servico.class).store();
+        
+    }
+    }
