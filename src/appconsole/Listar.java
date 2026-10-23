@@ -1,25 +1,25 @@
 package appconsole;
 
-import util.BancoMemoria;
+import com.db4o.ObjectContainer;
 import util.Util;
 
 public class Listar {
 
-	public static void executar(BancoMemoria db) {
+	public static void executar(ObjectContainer db) {
 		listarTutores(db);
 		listarPets(db);
 		listarServicos(db);
 	}
 
-	public static void listarTutores(BancoMemoria db) {
+	public static void listarTutores(ObjectContainer db) {
 		Consultar.listarTutores(db);
 	}
 
-	public static void listarPets(BancoMemoria db) {
+	public static void listarPets(ObjectContainer db) {
 		Consultar.listarPets(db);
 	}
 
-	public static void listarServicos(BancoMemoria db) {
+	public static void listarServicos(ObjectContainer db) {
 		Consultar.listarServicos(db);
 	}
 

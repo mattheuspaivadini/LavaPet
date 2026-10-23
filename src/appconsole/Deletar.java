@@ -2,15 +2,19 @@ package appconsole;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.db4o.ObjectContainer;
 import modelo.Pet;
 import modelo.Servico;
 import modelo.Tutor;
-import util.BancoMemoria;
 import util.Util;
 
 public class Deletar {
 
-	public static void executar(BancoMemoria db) {
+	public static void main(String[] args) {
+		Util.executar(Deletar::executar);
+	}
+
+	public static void executar(ObjectContainer db) {
 		boolean continuar = true;
 		while (continuar && !Util.encerrada()) {
 			System.out.println("\n=== Deletar ===\n"
@@ -39,7 +43,7 @@ public class Deletar {
 		}
 	}
 
-	public static void deletarTutor(BancoMemoria db) {
+	public static void deletarTutor(ObjectContainer db) {
 		Tutor tutor = Consultar.escolherTutor(db);
 		if (tutor == null) {
 			return;
@@ -59,7 +63,7 @@ public class Deletar {
 				+ " (" + pets.size() + " pet(s) removido(s))");
 	}
 
-	public static void deletarPet(BancoMemoria db) {
+	public static void deletarPet(ObjectContainer db) {
 		Pet pet = Consultar.escolherPet(db);
 		if (pet == null) {
 			return;
@@ -75,7 +79,7 @@ public class Deletar {
 		System.out.println("Pet excluído: " + nome);
 	}
 
-	public static void deletarServico(BancoMemoria db) {
+	public static void deletarServico(ObjectContainer db) {
 		Servico servico = Consultar.escolherServico(db);
 		if (servico == null) {
 			return;
@@ -94,7 +98,7 @@ public class Deletar {
 		System.out.println("Serviço excluído: #" + id);
 	}
 
-	private static void excluirPet(BancoMemoria db, Pet pet) {
+	private static void excluirPet(ObjectContainer db, Pet pet) {
 		for (Servico servico : new ArrayList<>(pet.getListaServicos())) {
 			pet.removerServico(servico);
 		}

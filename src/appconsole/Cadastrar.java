@@ -3,15 +3,20 @@ package appconsole;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import com.db4o.ObjectContainer;
 import modelo.Pet;
 import modelo.Servico;
 import modelo.Tutor;
-import util.BancoMemoria;
+import util.Banco;
 import util.Util;
 
 public class Cadastrar {
 
-	public static void executar(BancoMemoria db) {
+	public static void main(String[] args) {
+		Util.executar(Cadastrar::executar);
+	}
+
+	public static void executar(ObjectContainer db) {
 		boolean continuar = true;
 		while (continuar && !Util.encerrada()) {
 			System.out.println("\n=== Cadastrar ===\n"
@@ -40,20 +45,21 @@ public class Cadastrar {
 		}
 	}
 
-	public static Tutor cadastrarTutor(BancoMemoria db) {
+	public static Tutor cadastrarTutor(ObjectContainer db) {
 		String nome = Util.texto("Nome do tutor");
 		if (nome == null) {
 			return null;
 		}
 
 		Tutor tutor = new Tutor(nome);
+		tutor.setId(Banco.gerarIdTutor(db));
 		db.store(tutor);
 		db.commit();
 		System.out.println("Tutor cadastrado: " + tutor);
 		return tutor;
 	}
 
-	public static Pet cadastrarPet(BancoMemoria db) {
+	public static Pet cadastrarPet(ObjectContainer db) {
 		if (db.query(Tutor.class).isEmpty()) {
 			System.out.println("Cadastre um tutor antes de cadastrar um pet.");
 			return null;
@@ -74,13 +80,14 @@ public class Cadastrar {
 		}
 
 		Pet pet = new Pet(nome, raca, tutor);
+		pet.setId(Banco.gerarIdPet(db));
 		db.store(pet);
 		db.commit();
 		System.out.println("Pet cadastrado: " + pet);
 		return pet;
 	}
 
-	public static Servico cadastrarServico(BancoMemoria db) {
+	public static Servico cadastrarServico(ObjectContainer db) {
 		LocalDate data = Util.dataPrompt("Data do serviço");
 		if (data == null) {
 			return null;
@@ -96,6 +103,7 @@ public class Cadastrar {
 		}
 
 		Servico servico = new Servico(data, valor);
+		servico.setId(Banco.gerarIdServico(db));
 		for (Pet pet : pets) {
 			servico.adicionarPet(pet);
 		}
