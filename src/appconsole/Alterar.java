@@ -4,15 +4,19 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import com.db4o.ObjectContainer;
 import modelo.Pet;
 import modelo.Servico;
 import modelo.Tutor;
-import util.BancoMemoria;
 import util.Util;
 
 public class Alterar {
 
-	public static void executar(BancoMemoria db) {
+	public static void main(String[] args) {
+		Util.executar(Alterar::executar);
+	}
+
+	public static void executar(ObjectContainer db) {
 		boolean continuar = true;
 		while (continuar && !Util.encerrada()) {
 			System.out.println("\n=== Alterar ===\n"
@@ -41,7 +45,7 @@ public class Alterar {
 		}
 	}
 
-	public static void alterarTutor(BancoMemoria db) {
+	public static void alterarTutor(ObjectContainer db) {
 		Tutor tutor = Consultar.escolherTutor(db);
 		if (tutor == null) {
 			return;
@@ -58,7 +62,7 @@ public class Alterar {
 		System.out.println("Tutor alterado: " + tutor);
 	}
 
-	public static void alterarPet(BancoMemoria db) {
+	public static void alterarPet(ObjectContainer db) {
 		Pet pet = Consultar.escolherPet(db);
 		if (pet == null) {
 			return;
@@ -92,7 +96,7 @@ public class Alterar {
 		System.out.println("Pet alterado: " + pet);
 	}
 
-	public static void alterarServico(BancoMemoria db) {
+	public static void alterarServico(ObjectContainer db) {
 		Servico servico = Consultar.escolherServico(db);
 		if (servico == null) {
 			return;

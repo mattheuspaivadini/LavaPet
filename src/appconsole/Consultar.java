@@ -4,15 +4,20 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import com.db4o.ObjectContainer;
 import modelo.Pet;
 import modelo.Servico;
 import modelo.Tutor;
-import util.BancoMemoria;
+import util.Banco;
 import util.Util;
 
 public class Consultar {
 
-	public static void executar(BancoMemoria db) {
+	public static void main(String[] args) {
+		Util.executar(Consultar::executar);
+	}
+
+	public static void executar(ObjectContainer db) {
 		boolean continuar = true;
 		while (continuar && !Util.encerrada()) {
 			System.out.println("\n=== Consultar ===\n"
@@ -53,7 +58,7 @@ public class Consultar {
 		}
 	}
 
-	public static void listarTutores(BancoMemoria db) {
+	public static void listarTutores(ObjectContainer db) {
 		System.out.println("------------ TUTORES ------------");
 		List<Tutor> tutores = db.query(Tutor.class);
 		if (tutores.isEmpty()) {
@@ -65,7 +70,7 @@ public class Consultar {
 		}
 	}
 
-	public static void listarPets(BancoMemoria db) {
+	public static void listarPets(ObjectContainer db) {
 		System.out.println("\n------------ PETS ------------");
 		List<Pet> pets = db.query(Pet.class);
 		if (pets.isEmpty()) {
@@ -77,7 +82,7 @@ public class Consultar {
 		}
 	}
 
-	public static void listarServicos(BancoMemoria db) {
+	public static void listarServicos(ObjectContainer db) {
 		System.out.println("\n------------ SERVICOS ------------");
 		List<Servico> servicos = db.query(Servico.class);
 		if (servicos.isEmpty()) {
@@ -89,22 +94,22 @@ public class Consultar {
 		}
 	}
 
-	public static Tutor buscarTutorPorId(BancoMemoria db, int id) {
-		List<Tutor> encontrados = db.query(Tutor.class, t -> t.getId() == id);
+	public static Tutor buscarTutorPorId(ObjectContainer db, int id) {
+		List<Tutor> encontrados = Banco.query(db, Tutor.class, t -> t.getId() == id);
 		return encontrados.isEmpty() ? null : encontrados.get(0);
 	}
 
-	public static Pet buscarPetPorId(BancoMemoria db, int id) {
-		List<Pet> encontrados = db.query(Pet.class, p -> p.getId() == id);
+	public static Pet buscarPetPorId(ObjectContainer db, int id) {
+		List<Pet> encontrados = Banco.query(db, Pet.class, p -> p.getId() == id);
 		return encontrados.isEmpty() ? null : encontrados.get(0);
 	}
 
-	public static Servico buscarServicoPorId(BancoMemoria db, int id) {
-		List<Servico> encontrados = db.query(Servico.class, s -> s.getId() == id);
+	public static Servico buscarServicoPorId(ObjectContainer db, int id) {
+		List<Servico> encontrados = Banco.query(db, Servico.class, s -> s.getId() == id);
 		return encontrados.isEmpty() ? null : encontrados.get(0);
 	}
 
-	public static Tutor escolherTutor(BancoMemoria db) {
+	public static Tutor escolherTutor(ObjectContainer db) {
 		listarTutores(db);
 		if (db.query(Tutor.class).isEmpty()) {
 			return null;
@@ -121,7 +126,7 @@ public class Consultar {
 		return null;
 	}
 
-	public static Pet escolherPet(BancoMemoria db) {
+	public static Pet escolherPet(ObjectContainer db) {
 		listarPets(db);
 		if (db.query(Pet.class).isEmpty()) {
 			return null;
@@ -138,7 +143,7 @@ public class Consultar {
 		return null;
 	}
 
-	public static Servico escolherServico(BancoMemoria db) {
+	public static Servico escolherServico(ObjectContainer db) {
 		listarServicos(db);
 		if (db.query(Servico.class).isEmpty()) {
 			return null;
@@ -155,7 +160,7 @@ public class Consultar {
 		return null;
 	}
 
-	public static List<Pet> escolherPets(BancoMemoria db) {
+	public static List<Pet> escolherPets(ObjectContainer db) {
 		listarPets(db);
 		if (db.query(Pet.class).isEmpty()) {
 			System.out.println("Cadastre um pet antes de vincular serviços.");
@@ -202,17 +207,17 @@ public class Consultar {
 		}
 	}
 
-	private static void consultarTutor(BancoMemoria db) {
+	private static void consultarTutor(ObjectContainer db) {
 		String trecho = Util.texto("Nome ou trecho");
 		if (trecho == null) {
 			return;
 		}
 
-		List<Tutor> encontrados = db.query(Tutor.class, t -> contem(t.getNome(), trecho));
+		List<Tutor> encontrados = Banco.query(db, Tutor.class, t -> contem(t.getNome(), trecho));
 		resultados(encontrados);
 	}
 
-	private static void consultaPet(BancoMemoria db) {
+	private static void consultaPet(ObjectContainer db) {
 		System.out.println("1 Nome | 2 Raça | 3 Tutor (trecho do nome)");
 		String op = Util.ler("Critério");
 		String criterio = Util.texto("Valor");
@@ -231,23 +236,23 @@ public class Consultar {
 		}
 	}
 
-	private static void consultarPetPorNome(BancoMemoria db, String nome) {
-		List<Pet> encontrados = db.query(Pet.class, p -> contem(p.getNome(), nome));
+	private static void consultarPetPorNome(ObjectContainer db, String nome) {
+		List<Pet> encontrados = Banco.query(db, Pet.class, p -> contem(p.getNome(), nome));
 		resultados(encontrados);
 	}
 
-	private static void consultarPetPorRaca(BancoMemoria db, String raca) {
-		List<Pet> encontrados = db.query(Pet.class, p -> contem(p.getRaca(), raca));
+	private static void consultarPetPorRaca(ObjectContainer db, String raca) {
+		List<Pet> encontrados = Banco.query(db, Pet.class, p -> contem(p.getRaca(), raca));
 		resultados(encontrados);
 	}
 
-	private static void consultarPetPorTutor(BancoMemoria db, String nomeTutor) {
-		List<Pet> encontrados = db.query(Pet.class,
+	private static void consultarPetPorTutor(ObjectContainer db, String nomeTutor) {
+		List<Pet> encontrados = Banco.query(db, Pet.class,
 				p -> p.getTutor() != null && contem(p.getTutor().getNome(), nomeTutor));
 		resultados(encontrados);
 	}
 
-	private static void consultaServico(BancoMemoria db) {
+	private static void consultaServico(ObjectContainer db) {
 		System.out.println("1 Pet (trecho do nome) | 2 Data | 3 Intervalo de datas | 4 Valor mínimo");
 		String op = Util.ler("Critério");
 		if (op.equals("1")) {
@@ -263,13 +268,13 @@ public class Consultar {
 		}
 	}
 
-	private static void consultarServicoPorPet(BancoMemoria db) {
+	private static void consultarServicoPorPet(ObjectContainer db) {
 		String nomePet = Util.texto("Nome do pet");
 		if (nomePet == null) {
 			return;
 		}
 
-		List<Servico> encontrados = db.query(Servico.class, s -> {
+		List<Servico> encontrados = Banco.query(db, Servico.class, s -> {
 			for (Pet p : s.getListaPets()) {
 				if (contem(p.getNome(), nomePet)) {
 					return true;
@@ -280,21 +285,21 @@ public class Consultar {
 		resultados(encontrados);
 	}
 
-	private static void consultarServicoPorData(BancoMemoria db) {
+	private static void consultarServicoPorData(ObjectContainer db) {
 		LocalDate data = Util.dataPrompt("Data");
 		if (data == null) {
 			return;
 		}
 
-		List<Servico> encontrados = db.query(Servico.class, s -> s.getData().equals(data));
+		List<Servico> encontrados = Banco.query(db, Servico.class, s -> s.getData().equals(data));
 		resultados(encontrados);
 	}
 
-	private static void consultarServicoPorIntervalo(BancoMemoria db) {
+	private static void consultarServicoPorIntervalo(ObjectContainer db) {
 		LocalDate dataInicial = Util.dataPrompt("Data inicial");
 		LocalDate dataFinal = Util.dataPrompt("Data final");
 		if (dataInicial != null && dataFinal != null && !dataFinal.isBefore(dataInicial)) {
-			List<Servico> encontrados = db.query(Servico.class,
+			List<Servico> encontrados = Banco.query(db, Servico.class,
 					s -> !s.getData().isBefore(dataInicial) && !s.getData().isAfter(dataFinal));
 			resultados(encontrados);
 		} else {
@@ -302,13 +307,13 @@ public class Consultar {
 		}
 	}
 
-	private static void consultarServicoPorValorMinimo(BancoMemoria db) {
+	private static void consultarServicoPorValorMinimo(ObjectContainer db) {
 		BigDecimal valorMinimo = Util.valorPrompt("Valor mínimo");
 		if (valorMinimo == null) {
 			return;
 		}
 
-		List<Servico> encontrados = db.query(Servico.class, s -> s.getValor().compareTo(valorMinimo) >= 0);
+		List<Servico> encontrados = Banco.query(db, Servico.class, s -> s.getValor().compareTo(valorMinimo) >= 0);
 		resultados(encontrados);
 	}
 

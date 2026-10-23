@@ -7,6 +7,7 @@ import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.Scanner;
 import java.util.function.Consumer;
+import com.db4o.ObjectContainer;
 
 public class Util {
 	private static final Scanner IN = new Scanner(System.in);
@@ -15,8 +16,8 @@ public class Util {
 	private static final String CANCELAR = ":cancelar";
 	private static boolean entradaEncerrada;
 
-	public static BancoMemoria getBanco() {
-		return BancoMemoria.getInstancia();
+	public static ObjectContainer getBanco() {
+		return Banco.conectar();
 	}
 
 	public static void reiniciar() {
@@ -174,12 +175,15 @@ public class Util {
 		}
 	}
 
-	public static void executar(Consumer<BancoMemoria> operacao) {
+	public static void executar(Consumer<ObjectContainer> operacao) {
+		ObjectContainer db = Banco.conectar();
 		try {
-			operacao.accept(BancoMemoria.getInstancia());
+			operacao.accept(db);
 		} catch (Exception e) {
 			System.out.println("ERRO: " + e.getMessage());
 			e.printStackTrace(System.out);
+		} finally {
+			Banco.desconectar();
 		}
 	}
 }
