@@ -1,13 +1,12 @@
 package appconsole;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import com.db4o.ObjectContainer;
 import modelo.Pet;
 import modelo.Servico;
 import modelo.Tutor;
-import util.Banco;
+import util.GeradorID;
 import util.Util;
 
 public class Cadastrar {
@@ -52,7 +51,7 @@ public class Cadastrar {
 		}
 
 		Tutor tutor = new Tutor(nome);
-		tutor.setId(Banco.gerarIdTutor(db));
+		tutor.setId(GeradorID.gerarIdTutor(db));
 		db.store(tutor);
 		db.commit();
 		System.out.println("Tutor cadastrado: " + tutor);
@@ -80,7 +79,7 @@ public class Cadastrar {
 		}
 
 		Pet pet = new Pet(nome, raca, tutor);
-		pet.setId(Banco.gerarIdPet(db));
+		pet.setId(GeradorID.gerarIdPet(db));
 		db.store(pet);
 		db.commit();
 		System.out.println("Pet cadastrado: " + pet);
@@ -88,7 +87,7 @@ public class Cadastrar {
 	}
 
 	public static Servico cadastrarServico(ObjectContainer db) {
-		LocalDate data = Util.dataPrompt("Data do serviço");
+		String data = Util.dataPrompt("Data do serviço");
 		if (data == null) {
 			return null;
 		}
@@ -103,7 +102,7 @@ public class Cadastrar {
 		}
 
 		Servico servico = new Servico(data, valor);
-		servico.setId(Banco.gerarIdServico(db));
+		servico.setId(GeradorID.gerarIdServico(db));
 		for (Pet pet : pets) {
 			servico.adicionarPet(pet);
 		}

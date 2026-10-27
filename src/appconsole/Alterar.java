@@ -1,7 +1,6 @@
 package appconsole;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import com.db4o.ObjectContainer;
@@ -23,6 +22,7 @@ public class Alterar {
 					+ "1 Tutor\n"
 					+ "2 Pet\n"
 					+ "3 Serviço\n"
+					+ "4 Remover vínculo Pet-Serviço\n"
 					+ "0 Voltar");
 			String opcao = Util.ler("Opção");
 			switch (opcao) {
@@ -35,6 +35,9 @@ public class Alterar {
 			case "3":
 				alterarServico(db);
 				break;
+			case "4":
+				removerVinculoPetServico(db);
+				break;
 			case "0":
 				continuar = false;
 				break;
@@ -43,6 +46,41 @@ public class Alterar {
 				break;
 			}
 		}
+	}
+
+	public static void removerVinculoPetServico(ObjectContainer db) {
+		Servico servico = Consultar.escolherServico(db);
+		if (servico == null) {
+			return;
+		}
+		if (servico.getListaPets().isEmpty()) {
+			System.out.println("Este serviço não tem pets vinculados.");
+			return;
+		}
+		System.out.println("Pets do serviço:");
+		for (Pet p : servico.getListaPets()) {
+			System.out.println("  #" + p.getId() + " " + p.getNome());
+		}
+		Integer id = Util.inteiro("Id do pet a desvincular");
+		if (id == null) {
+			return;
+		}
+		Pet pet = null;
+		for (Pet p : servico.getListaPets()) {
+			if (p.getId() == id) {
+				pet = p;
+			}
+		}
+		if (pet == null) {
+			System.out.println("Pet não está vinculado a este serviço.");
+			return;
+		}
+
+		servico.removerPet(pet);
+		db.store(servico);
+		db.store(pet);
+		db.commit();
+		System.out.println("Vínculo removido: " + pet.getNome() + " <-> serviço #" + servico.getId());
 	}
 
 	public static void alterarTutor(ObjectContainer db) {
@@ -102,7 +140,7 @@ public class Alterar {
 			return;
 		}
 
-		LocalDate data = Util.dataOpcional("Nova data", servico.getData());
+		String data = Util.dataOpcional("Nova data", servico.getData());
 		if (data == null) {
 			return;
 		}
