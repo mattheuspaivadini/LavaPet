@@ -17,7 +17,7 @@ public class Util {
 	private static boolean entradaEncerrada;
 
 	public static ObjectContainer getBanco() {
-		return Banco.conectar();
+		return GeradorID.conectar();
 	}
 
 	public static void reiniciar() {
@@ -77,7 +77,7 @@ public class Util {
 		}
 	}
 
-	public static LocalDate dataPrompt(String prompt) {
+	public static String dataPrompt(String prompt) {
 		while (true) {
 			String s = texto(prompt + " (dd/MM/aaaa)");
 			if (s == null) {
@@ -85,15 +85,15 @@ public class Util {
 			}
 			LocalDate d = data(s);
 			if (d != null) {
-				return d;
+				return d.format(DATA);
 			}
 			System.out.println("Data inválida; use dd/MM/aaaa e tente novamente.");
 		}
 	}
 
-	public static LocalDate dataOpcional(String prompt, LocalDate atual) {
+	public static String dataOpcional(String prompt, String atual) {
 		while (true) {
-			String s = ler(prompt + " (dd/MM/aaaa, Enter mantém " + atual.format(DATA) + ")");
+			String s = ler(prompt + " (dd/MM/aaaa, Enter mantém " + atual + ")");
 			if (cancelado(s)) {
 				return null;
 			}
@@ -102,7 +102,7 @@ public class Util {
 			}
 			LocalDate d = data(s);
 			if (d != null) {
-				return d;
+				return d.format(DATA);
 			}
 			System.out.println("Data inválida; use dd/MM/aaaa e tente novamente.");
 		}
@@ -111,7 +111,7 @@ public class Util {
 	public static LocalDate data(String s) {
 		try {
 			return LocalDate.parse(s, DATA);
-		} catch (DateTimeParseException e) {
+		} catch (DateTimeParseException | NullPointerException e) {
 			return null;
 		}
 	}
@@ -176,14 +176,14 @@ public class Util {
 	}
 
 	public static void executar(Consumer<ObjectContainer> operacao) {
-		ObjectContainer db = Banco.conectar();
+		ObjectContainer db = GeradorID.conectar();
 		try {
 			operacao.accept(db);
 		} catch (Exception e) {
 			System.out.println("ERRO: " + e.getMessage());
 			e.printStackTrace(System.out);
 		} finally {
-			Banco.desconectar();
+			GeradorID.desconectar();
 		}
 	}
 }

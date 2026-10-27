@@ -12,7 +12,7 @@ import modelo.Pet;
 import modelo.Servico;
 import modelo.Tutor;
 
-public class Banco {
+public class GeradorID {
     private static final String BANCO_ARQUIVO = "lavapet.db4o";
     private static ObjectContainer manager = null;
 
@@ -28,7 +28,6 @@ public class Banco {
         config.common().objectClass(Servico.class).cascadeOnUpdate(true);
         config.common().objectClass(Servico.class).cascadeOnActivate(true);
 
-        // Índices em campos chave para busca rápida
         config.common().objectClass(Tutor.class).objectField("id").indexed(true);
         config.common().objectClass(Tutor.class).objectField("nome").indexed(true);
         config.common().objectClass(Pet.class).objectField("id").indexed(true);

@@ -1,18 +1,17 @@
 package modelo;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class Servico {
 	private int id;
-	private LocalDate data;
+	private String data;
 	private BigDecimal valor;
 	private List<Pet> listaPets = new ArrayList<>();
 
-	public Servico(LocalDate data, BigDecimal valor) {
+	public Servico(String data, BigDecimal valor) {
 		if (data == null || valor == null) {
 			throw new IllegalArgumentException("Servico precisa de data e valor");
 		}
@@ -20,7 +19,7 @@ public class Servico {
 		this.valor = valor;
 	}
 
-	public Servico(int id, LocalDate data, BigDecimal valor) {
+	public Servico(int id, String data, BigDecimal valor) {
 		this(data, valor);
 		this.id = id;
 	}
@@ -33,11 +32,11 @@ public class Servico {
 		this.id = id;
 	}
 
-	public LocalDate getData() {
+	public String getData() {
 		return data;
 	}
 
-	public void setData(LocalDate data) {
+	public void setData(String data) {
 		if (data == null) {
 			throw new IllegalArgumentException("data nao pode ser nula");
 		}

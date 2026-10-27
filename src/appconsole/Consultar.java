@@ -8,7 +8,7 @@ import com.db4o.ObjectContainer;
 import modelo.Pet;
 import modelo.Servico;
 import modelo.Tutor;
-import util.Banco;
+import util.GeradorID;
 import util.Util;
 
 public class Consultar {
@@ -95,17 +95,17 @@ public class Consultar {
 	}
 
 	public static Tutor buscarTutorPorId(ObjectContainer db, int id) {
-		List<Tutor> encontrados = Banco.query(db, Tutor.class, t -> t.getId() == id);
+		List<Tutor> encontrados = GeradorID.query(db, Tutor.class, t -> t.getId() == id);
 		return encontrados.isEmpty() ? null : encontrados.get(0);
 	}
 
 	public static Pet buscarPetPorId(ObjectContainer db, int id) {
-		List<Pet> encontrados = Banco.query(db, Pet.class, p -> p.getId() == id);
+		List<Pet> encontrados = GeradorID.query(db, Pet.class, p -> p.getId() == id);
 		return encontrados.isEmpty() ? null : encontrados.get(0);
 	}
 
 	public static Servico buscarServicoPorId(ObjectContainer db, int id) {
-		List<Servico> encontrados = Banco.query(db, Servico.class, s -> s.getId() == id);
+		List<Servico> encontrados = GeradorID.query(db, Servico.class, s -> s.getId() == id);
 		return encontrados.isEmpty() ? null : encontrados.get(0);
 	}
 
@@ -213,7 +213,7 @@ public class Consultar {
 			return;
 		}
 
-		List<Tutor> encontrados = Banco.query(db, Tutor.class, t -> contem(t.getNome(), trecho));
+		List<Tutor> encontrados = GeradorID.query(db, Tutor.class, t -> contem(t.getNome(), trecho));
 		resultados(encontrados);
 	}
 
@@ -237,17 +237,17 @@ public class Consultar {
 	}
 
 	private static void consultarPetPorNome(ObjectContainer db, String nome) {
-		List<Pet> encontrados = Banco.query(db, Pet.class, p -> contem(p.getNome(), nome));
+		List<Pet> encontrados = GeradorID.query(db, Pet.class, p -> contem(p.getNome(), nome));
 		resultados(encontrados);
 	}
 
 	private static void consultarPetPorRaca(ObjectContainer db, String raca) {
-		List<Pet> encontrados = Banco.query(db, Pet.class, p -> contem(p.getRaca(), raca));
+		List<Pet> encontrados = GeradorID.query(db, Pet.class, p -> contem(p.getRaca(), raca));
 		resultados(encontrados);
 	}
 
 	private static void consultarPetPorTutor(ObjectContainer db, String nomeTutor) {
-		List<Pet> encontrados = Banco.query(db, Pet.class,
+		List<Pet> encontrados = GeradorID.query(db, Pet.class,
 				p -> p.getTutor() != null && contem(p.getTutor().getNome(), nomeTutor));
 		resultados(encontrados);
 	}
@@ -274,7 +274,7 @@ public class Consultar {
 			return;
 		}
 
-		List<Servico> encontrados = Banco.query(db, Servico.class, s -> {
+		List<Servico> encontrados = GeradorID.query(db, Servico.class, s -> {
 			for (Pet p : s.getListaPets()) {
 				if (contem(p.getNome(), nomePet)) {
 					return true;
@@ -286,21 +286,21 @@ public class Consultar {
 	}
 
 	private static void consultarServicoPorData(ObjectContainer db) {
-		LocalDate data = Util.dataPrompt("Data");
+		String data = Util.dataPrompt("Data");
 		if (data == null) {
 			return;
 		}
 
-		List<Servico> encontrados = Banco.query(db, Servico.class, s -> s.getData().equals(data));
+		List<Servico> encontrados = GeradorID.query(db, Servico.class, s -> s.getData().equals(data));
 		resultados(encontrados);
 	}
 
 	private static void consultarServicoPorIntervalo(ObjectContainer db) {
-		LocalDate dataInicial = Util.dataPrompt("Data inicial");
-		LocalDate dataFinal = Util.dataPrompt("Data final");
+		LocalDate dataInicial = Util.data(Util.dataPrompt("Data inicial"));
+		LocalDate dataFinal = Util.data(Util.dataPrompt("Data final"));
 		if (dataInicial != null && dataFinal != null && !dataFinal.isBefore(dataInicial)) {
-			List<Servico> encontrados = Banco.query(db, Servico.class,
-					s -> !s.getData().isBefore(dataInicial) && !s.getData().isAfter(dataFinal));
+			List<Servico> encontrados = GeradorID.query(db, Servico.class,
+					s -> !Util.data(s.getData()).isBefore(dataInicial) && !Util.data(s.getData()).isAfter(dataFinal));
 			resultados(encontrados);
 		} else {
 			System.out.println("Intervalo inválido.");
@@ -313,7 +313,7 @@ public class Consultar {
 			return;
 		}
 
-		List<Servico> encontrados = Banco.query(db, Servico.class, s -> s.getValor().compareTo(valorMinimo) >= 0);
+		List<Servico> encontrados = GeradorID.query(db, Servico.class, s -> s.getValor().compareTo(valorMinimo) >= 0);
 		resultados(encontrados);
 	}
 

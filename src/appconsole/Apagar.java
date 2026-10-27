@@ -8,16 +8,16 @@ import modelo.Servico;
 import modelo.Tutor;
 import util.Util;
 
-public class Deletar {
+public class Apagar {
 
 	public static void main(String[] args) {
-		Util.executar(Deletar::executar);
+		Util.executar(Apagar::executar);
 	}
 
 	public static void executar(ObjectContainer db) {
 		boolean continuar = true;
 		while (continuar && !Util.encerrada()) {
-			System.out.println("\n=== Deletar ===\n"
+			System.out.println("\n=== Apagar ===\n"
 					+ "1 Tutor (com seus pets)\n"
 					+ "2 Pet\n"
 					+ "3 Serviço\n"
