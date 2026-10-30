@@ -3,6 +3,13 @@
 	"configurations": [
 		{
 			"type": "java",
+			"name": "AlterarTest",
+			"request": "launch",
+			"mainClass": "teste.AlterarTest",
+			"projectName": "LavaPet"
+		},
+		{
+			"type": "java",
 			"name": "ListarTest",
 			"request": "launch",
 			"mainClass": "teste.ListarTest",
