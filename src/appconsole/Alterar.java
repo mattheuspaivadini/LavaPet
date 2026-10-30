@@ -126,9 +126,11 @@ public class Alterar {
 			return;
 		}
 
+		Tutor antigo = pet.getTutor();
 		pet.setNome(nome);
 		pet.setRaca(raca);
 		pet.setTutor(novoTutor);
+		db.store(antigo);
 		db.store(pet);
 		db.commit();
 		System.out.println("Pet alterado: " + pet);
@@ -162,8 +164,10 @@ public class Alterar {
 
 		servico.setData(data);
 		servico.setValor(valor);
+		db.activate(servico, Integer.MAX_VALUE); // ver Apagar.deletarServico
+		List<Pet> antigos = new ArrayList<>(servico.getListaPets());
 		if (pets != null) {
-			for (Pet pet : new ArrayList<>(servico.getListaPets())) {
+			for (Pet pet : antigos) {
 				servico.removerPet(pet);
 			}
 			for (Pet pet : pets) {
@@ -171,6 +175,9 @@ public class Alterar {
 			}
 		}
 		db.store(servico);
+		for (Pet pet : antigos) { // pets desvinculados nao estao mais no cascade do servico
+			db.store(pet);
+		}
 		db.commit();
 		System.out.println("Serviço alterado: " + servico);
 	}

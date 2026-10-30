@@ -8,7 +8,7 @@ import java.util.List;
 public class Servico {
 	private int id;
 	private String data;
-	private BigDecimal valor;
+	private String valor;
 	private List<Pet> listaPets = new ArrayList<>();
 
 	public Servico(String data, BigDecimal valor) {
@@ -16,7 +16,7 @@ public class Servico {
 			throw new IllegalArgumentException("Servico precisa de data e valor");
 		}
 		this.data = data;
-		this.valor = valor;
+		this.valor = valor.toPlainString();
 	}
 
 	public Servico(int id, String data, BigDecimal valor) {
@@ -44,14 +44,14 @@ public class Servico {
 	}
 
 	public BigDecimal getValor() {
-		return valor;
+		return new BigDecimal(valor);
 	}
 
 	public void setValor(BigDecimal valor) {
 		if (valor == null) {
 			throw new IllegalArgumentException("valor nao pode ser nulo");
 		}
-		this.valor = valor;
+		this.valor = valor.toPlainString();
 	}
 
 	public List<Pet> getListaPets() {
@@ -77,7 +77,7 @@ public class Servico {
 	public String toString() {
 		StringBuilder sb = new StringBuilder("Servico [id=").append(id)
 				.append(", data=").append(data)
-				.append(", valor=").append(valor.toPlainString())
+				.append(", valor=").append(valor)
 				.append(", pets=[");
 		for (int i = 0; i < listaPets.size(); i++) {
 			if (i > 0) {

@@ -1,0 +1,70 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "java",
+			"name": "ListarTest",
+			"request": "launch",
+			"mainClass": "teste.ListarTest",
+			"projectName": "LavaPet"
+		},
+		{
+			"type": "java",
+			"name": "ConsultarTest",
+			"request": "launch",
+			"mainClass": "teste.ConsultarTest",
+			"projectName": "LavaPet"
+		},
+		{
+			"type": "java",
+			"name": "CadastrarTest",
+			"request": "launch",
+			"mainClass": "teste.CadastrarTest",
+			"projectName": "LavaPet"
+		},
+		{
+			"type": "java",
+			"name": "TesteAlterar",
+			"request": "launch",
+			"mainClass": "teste.TesteAlterar",
+			"projectName": "LavaPet"
+		},
+		{
+			"type": "java",
+			"name": "Apagar",
+			"request": "launch",
+			"mainClass": "appconsole.Apagar",
+			"projectName": "LavaPet"
+		},
+		{
+			"type": "java",
+			"name": "Consultar",
+			"request": "launch",
+			"mainClass": "appconsole.Consultar",
+			"projectName": "LavaPet"
+		},
+		{
+			"type": "java",
+			"name": "Cadastrar",
+			"request": "launch",
+			"mainClass": "appconsole.Cadastrar",
+			"projectName": "LavaPet"
+		},
+		{
+			"type": "java",
+			"name": "TesteCRUD",
+			"request": "launch",
+			"mainClass": "teste.TesteCRUD",
+			"projectName": "LavaPet",
+			"console": "integratedTerminal"
+		},
+		{
+			"type": "java",
+			"name": "Listar",
+			"request": "launch",
+			"mainClass": "appconsole.Listar",
+			"projectName": "LavaPet",
+			"console": "integratedTerminal"
+		}
+	]
+}

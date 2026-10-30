@@ -90,8 +90,14 @@ public class Apagar {
 		}
 
 		int id = servico.getId();
-		for (Pet pet : new ArrayList<>(servico.getListaPets())) {
+		// pets alcancados pelo grafo do servico vem parcialmente ativados e nao removeriam o servico da propria lista
+		db.activate(servico, Integer.MAX_VALUE);
+		List<Pet> pets = new ArrayList<>(servico.getListaPets());
+		for (Pet pet : pets) {
 			servico.removerPet(pet);
+		}
+		for (Pet pet : pets) {
+			db.store(pet);
 		}
 		db.delete(servico);
 		db.commit();
@@ -99,10 +105,15 @@ public class Apagar {
 	}
 
 	private static void excluirPet(ObjectContainer db, Pet pet) {
+		Tutor tutor = pet.getTutor();
 		for (Servico servico : new ArrayList<>(pet.getListaServicos())) {
 			pet.removerServico(servico);
+			db.store(servico);
 		}
 		pet.setTutor(null);
+		if (tutor != null) {
+			db.store(tutor);
+		}
 		db.delete(pet);
 	}
 }

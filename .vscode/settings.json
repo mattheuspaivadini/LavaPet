@@ -1,0 +1,12 @@
+{
+	"java.project.sourcePaths": ["src", "test"],
+	"java.project.referencedLibraries": ["db4o/*.jar"],
+	"java.project.outputPath": "bin",
+	"java.configuration.runtimes": [
+		{
+			"name": "JavaSE-21",
+			"path": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.12.101-hotspot",
+			"default": true
+		}
+	]
+}
