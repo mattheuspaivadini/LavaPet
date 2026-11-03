@@ -1,7 +1,6 @@
 package appconsole;
 
 import com.db4o.ObjectContainer;
-import util.Util;
 
 public class Listar {
 
@@ -24,7 +23,7 @@ public class Listar {
 	}
 
 	public static void main(String[] args) {
-		Util.executar(Listar::executar);
+		Consultar.iniciar(Listar::executar);
 		System.out.println("fim do programa");
 	}
 }

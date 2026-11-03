@@ -3,6 +3,20 @@
 	"configurations": [
 		{
 			"type": "java",
+			"name": "PopularTest",
+			"request": "launch",
+			"mainClass": "teste.PopularTest",
+			"projectName": "LavaPet"
+		},
+		{
+			"type": "java",
+			"name": "Alterar",
+			"request": "launch",
+			"mainClass": "appconsole.Alterar",
+			"projectName": "LavaPet"
+		},
+		{
+			"type": "java",
 			"name": "ApagarTest",
 			"request": "launch",
 			"mainClass": "teste.ApagarTest",

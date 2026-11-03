@@ -6,23 +6,22 @@ import com.db4o.ObjectContainer;
 import modelo.Pet;
 import modelo.Servico;
 import modelo.Tutor;
-import util.Util;
 
 public class Apagar {
 
 	public static void main(String[] args) {
-		Util.executar(Apagar::executar);
+		Consultar.iniciar(Apagar::executar);
 	}
 
 	public static void executar(ObjectContainer db) {
 		boolean continuar = true;
-		while (continuar && !Util.encerrada()) {
+		while (continuar && !Consultar.encerrada()) {
 			System.out.println("\n=== Apagar ===\n"
 					+ "1 Tutor (com seus pets)\n"
 					+ "2 Pet\n"
 					+ "3 Serviço\n"
 					+ "0 Voltar");
-			String opcao = Util.ler("Opção");
+			String opcao = Consultar.ler("Opção");
 			switch (opcao) {
 			case "1":
 				deletarTutor(db);
@@ -48,7 +47,7 @@ public class Apagar {
 		if (tutor == null) {
 			return;
 		}
-		if (!Util.confirmar("Excluir o tutor e todos os seus pets")) {
+		if (!confirmar("Excluir o tutor e todos os seus pets")) {
 			System.out.println("Operação cancelada.");
 			return;
 		}
@@ -68,7 +67,7 @@ public class Apagar {
 		if (pet == null) {
 			return;
 		}
-		if (!Util.confirmar("Excluir o pet e remover seus vínculos")) {
+		if (!confirmar("Excluir o pet e remover seus vínculos")) {
 			System.out.println("Operação cancelada.");
 			return;
 		}
@@ -84,7 +83,7 @@ public class Apagar {
 		if (servico == null) {
 			return;
 		}
-		if (!Util.confirmar("Excluir o serviço e remover seus vínculos")) {
+		if (!confirmar("Excluir o serviço e remover seus vínculos")) {
 			System.out.println("Operação cancelada.");
 			return;
 		}
@@ -104,16 +103,36 @@ public class Apagar {
 		System.out.println("Serviço excluído: #" + id);
 	}
 
+	// confirmacao antes de qualquer remocao/alteracao destrutiva
+	static boolean confirmar(String prompt) {
+		while (true) {
+			String s = Consultar.ler(prompt + " (s/n)");
+			if (Consultar.cancelado(s)) {
+				return false;
+			}
+			if (s.equalsIgnoreCase("s") || s.equalsIgnoreCase("sim")) {
+				return true;
+			}
+			if (s.equalsIgnoreCase("n") || s.equalsIgnoreCase("nao") || s.equalsIgnoreCase("não")) {
+				return false;
+			}
+			System.out.println("Responda com s ou n.");
+		}
+	}
+
 	private static void excluirPet(ObjectContainer db, Pet pet) {
+		System.out.println(pet);
 		Tutor tutor = pet.getTutor();
 		for (Servico servico : new ArrayList<>(pet.getListaServicos())) {
 			pet.removerServico(servico);
+			servico.removerPet(pet);
 			db.store(servico);
 		}
+		tutor.removerPet(pet);
 		pet.setTutor(null);
-		if (tutor != null) {
-			db.store(tutor);
-		}
+		db.store(tutor);
 		db.delete(pet);
+		db.commit();
+		System.out.println(pet);
 	}
 }

@@ -70,7 +70,7 @@ public class Servico {
 		if (pet == null || !listaPets.remove(pet)) {
 			return;
 		}
-		pet.removerServico(this);
+		listaPets.remove(pet);
 	}
 
 	@Override

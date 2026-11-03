@@ -83,7 +83,7 @@ public class Pet {
 		if (servico == null || !listaServicos.remove(servico)) {
 			return;
 		}
-		servico.removerPet(this);
+		listaServicos.remove(servico);
 	}
 
 	@Override

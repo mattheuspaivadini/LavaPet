@@ -1,98 +1,78 @@
 package util;
 
-import com.db4o.Db4oEmbedded;
-import com.db4o.ObjectContainer;
-import com.db4o.config.EmbeddedConfiguration;
-
-import java.util.ArrayList;
+import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.Map;
 
-import modelo.Pet;
-import modelo.Servico;
-import modelo.Tutor;
+import com.db4o.ObjectContainer;
+import com.db4o.events.EventRegistry;
+import com.db4o.events.EventRegistryFactory;
+import com.db4o.query.Query;
 
 public class GeradorID {
-    private static final String BANCO_ARQUIVO = "lavapet.db4o";
-    private static ObjectContainer manager = null;
+	private static final Map<String, RegistroID> registros = new HashMap<>();
 
-    public static EmbeddedConfiguration obterConfiguracao() {
-        EmbeddedConfiguration config = Db4oEmbedded.newConfiguration();
+	static void ativar(ObjectContainer manager) {
+		registros.clear();
+		EventRegistry eventRegistry = EventRegistryFactory.forObjectContainer(manager);
 
-        config.common().objectClass(Tutor.class).cascadeOnUpdate(true);
-        config.common().objectClass(Tutor.class).cascadeOnActivate(true);
+		// "BEFORE PERSIST": disparado antes de gravar um objeto novo
+		eventRegistry.creating().addListener((event, args) -> {
+			Object objeto = args.object();
+			Field campo;
+			try {
+				campo = objeto.getClass().getDeclaredField("id");
+			} catch (NoSuchFieldException e) {
+				return; // classe sem id (ex.: o proprio RegistroID)
+			}
+			RegistroID registro = registros.computeIfAbsent(objeto.getClass().getName(),
+					nome -> lerRegistroID(manager, nome));
+			registro.incrementarID();
+			try {
+				campo.setAccessible(true);
+				campo.setInt(objeto, registro.getid());
+			} catch (IllegalAccessException e) {
+				throw new IllegalStateException(e);
+			}
+		});
+	}
 
-        config.common().objectClass(Pet.class).cascadeOnUpdate(true);
-        config.common().objectClass(Pet.class).cascadeOnActivate(true);
+	static void salvar(ObjectContainer manager) {
+		for (RegistroID registro : registros.values())
+			manager.store(registro);
+		manager.commit();
+		registros.clear();
+	}
 
-        config.common().objectClass(Servico.class).cascadeOnUpdate(true);
-        config.common().objectClass(Servico.class).cascadeOnActivate(true);
+	private static RegistroID lerRegistroID(ObjectContainer manager, String nomeclasse) {
+		Query q = manager.query();
+		q.constrain(RegistroID.class);
+		q.descend("nomedaclasse").constrain(nomeclasse);
+		List<RegistroID> resultados = q.execute();
+		return resultados.isEmpty() ? new RegistroID(nomeclasse) : resultados.get(0);
+	}
+}
 
-        config.common().objectClass(Tutor.class).objectField("id").indexed(true);
-        config.common().objectClass(Tutor.class).objectField("nome").indexed(true);
-        config.common().objectClass(Pet.class).objectField("id").indexed(true);
-        config.common().objectClass(Pet.class).objectField("nome").indexed(true);
-        config.common().objectClass(Servico.class).objectField("id").indexed(true);
+// Ultimo ID gerado de uma classe (inicia com 0)
+class RegistroID {
+	private String nomedaclasse;
+	private int ultimoid;
 
-        return config;
-    }
+	RegistroID(String nomedaclasse) {
+		this.nomedaclasse = nomedaclasse;
+	}
 
-    public static ObjectContainer conectar() {
-        if (manager == null || manager.ext().isClosed()) {
-            manager = Db4oEmbedded.openFile(obterConfiguracao(), BANCO_ARQUIVO);
-        }
-        return manager;
-    }
+	int getid() {
+		return ultimoid;
+	}
 
-    public static void desconectar() {
-        if (manager != null && !manager.ext().isClosed()) {
-            manager.close();
-            manager = null;
-        }
-    }
+	void incrementarID() {
+		ultimoid++;
+	}
 
-    public static int gerarIdTutor(ObjectContainer db) {
-        List<Tutor> lista = db.query(Tutor.class);
-        int max = 0;
-        for (Tutor t : lista) {
-            if (t.getId() > max) {
-                max = t.getId();
-            }
-        }
-        return max + 1;
-    }
-
-    public static int gerarIdPet(ObjectContainer db) {
-        List<Pet> lista = db.query(Pet.class);
-        int max = 0;
-        for (Pet p : lista) {
-            if (p.getId() > max) {
-                max = p.getId();
-            }
-        }
-        return max + 1;
-    }
-
-    public static int gerarIdServico(ObjectContainer db) {
-        List<Servico> lista = db.query(Servico.class);
-        int max = 0;
-        for (Servico s : lista) {
-            if (s.getId() > max) {
-                max = s.getId();
-            }
-        }
-        return max + 1;
-    }
-
-    public static <T> List<T> query(ObjectContainer db, Class<T> tipo, Predicate<T> filtro) {
-        List<T> base = db.query(tipo);
-        List<T> resultado = new ArrayList<>();
-        for (T item : base) {
-            if (filtro.test(item)) {
-                resultado.add(item);
-            }
-        }
-        return resultado;
-    }
-
+	@Override
+	public String toString() {
+		return "RegistroID [nomedaclasse=" + nomedaclasse + ", ultimoid=" + ultimoid + "]";
+	}
 }

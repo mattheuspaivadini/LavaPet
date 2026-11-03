@@ -1,29 +1,28 @@
 package appconsole;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import com.db4o.ObjectContainer;
 import modelo.Pet;
 import modelo.Servico;
 import modelo.Tutor;
-import util.GeradorID;
-import util.Util;
 
 public class Cadastrar {
 
 	public static void main(String[] args) {
-		Util.executar(Cadastrar::executar);
+		Consultar.iniciar(Cadastrar::executar);
 	}
 
 	public static void executar(ObjectContainer db) {
 		boolean continuar = true;
-		while (continuar && !Util.encerrada()) {
+		while (continuar && !Consultar.encerrada()) {
 			System.out.println("\n=== Cadastrar ===\n"
 					+ "1 Tutor\n"
 					+ "2 Pet\n"
 					+ "3 Serviço\n"
 					+ "0 Voltar");
-			String opcao = Util.ler("Opção");
+			String opcao = Consultar.ler("Opção");
 			switch (opcao) {
 			case "1":
 				cadastrarTutor(db);
@@ -45,13 +44,12 @@ public class Cadastrar {
 	}
 
 	public static Tutor cadastrarTutor(ObjectContainer db) {
-		String nome = Util.texto("Nome do tutor");
+		String nome = Consultar.texto("Nome do tutor");
 		if (nome == null) {
 			return null;
 		}
 
 		Tutor tutor = new Tutor(nome);
-		tutor.setId(GeradorID.gerarIdTutor(db));
 		db.store(tutor);
 		db.commit();
 		System.out.println("Tutor cadastrado: " + tutor);
@@ -64,11 +62,11 @@ public class Cadastrar {
 			return null;
 		}
 
-		String nome = Util.texto("Nome do pet");
+		String nome = Consultar.texto("Nome do pet");
 		if (nome == null) {
 			return null;
 		}
-		String raca = Util.texto("Raça");
+		String raca = Consultar.texto("Raça");
 		if (raca == null) {
 			return null;
 		}
@@ -79,7 +77,6 @@ public class Cadastrar {
 		}
 
 		Pet pet = new Pet(nome, raca, tutor);
-		pet.setId(GeradorID.gerarIdPet(db));
 		db.store(pet);
 		db.commit();
 		System.out.println("Pet cadastrado: " + pet);
@@ -87,11 +84,11 @@ public class Cadastrar {
 	}
 
 	public static Servico cadastrarServico(ObjectContainer db) {
-		String data = Util.dataPrompt("Data do serviço");
+		String data = dataPrompt("Data do serviço");
 		if (data == null) {
 			return null;
 		}
-		BigDecimal valor = Util.valorPrompt("Valor do serviço");
+		BigDecimal valor = valorPrompt("Valor do serviço");
 		if (valor == null) {
 			return null;
 		}
@@ -102,7 +99,6 @@ public class Cadastrar {
 		}
 
 		Servico servico = new Servico(data, valor);
-		servico.setId(GeradorID.gerarIdServico(db));
 		for (Pet pet : pets) {
 			servico.adicionarPet(pet);
 		}
@@ -110,5 +106,46 @@ public class Cadastrar {
 		db.commit();
 		System.out.println("Serviço cadastrado: " + servico);
 		return servico;
+	}
+
+	// --- validacao de entrada do cadastro ---
+	static String dataPrompt(String prompt) {
+		while (true) {
+			String s = Consultar.texto(prompt + " (dd/MM/aaaa)");
+			if (s == null) {
+				return null;
+			}
+			LocalDate d = Consultar.data(s);
+			if (d != null) {
+				return d.format(Consultar.DATA);
+			}
+			System.out.println("Data inválida; use dd/MM/aaaa e tente novamente.");
+		}
+	}
+
+	static BigDecimal valorPrompt(String prompt) {
+		while (true) {
+			String s = Consultar.texto(prompt);
+			if (s == null) {
+				return null;
+			}
+			BigDecimal v = dinheiro(s);
+			if (v != null) {
+				return v;
+			}
+			System.out.println("Valor inválido; tente novamente.");
+		}
+	}
+
+	static BigDecimal dinheiro(String s) {
+		try {
+			String n = s.trim();
+			if (n.contains(",") && n.contains(".")) {
+				return null;
+			}
+			return new BigDecimal(n.replace(',', '.'));
+		} catch (NumberFormatException e) {
+			return null;
+		}
 	}
 }

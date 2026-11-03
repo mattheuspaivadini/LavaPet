@@ -1,30 +1,30 @@
 package appconsole;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import com.db4o.ObjectContainer;
 import modelo.Pet;
 import modelo.Servico;
 import modelo.Tutor;
-import util.Util;
 
 public class Alterar {
 
 	public static void main(String[] args) {
-		Util.executar(Alterar::executar);
+		Consultar.iniciar(Alterar::executar);
 	}
 
 	public static void executar(ObjectContainer db) {
 		boolean continuar = true;
-		while (continuar && !Util.encerrada()) {
+		while (continuar && !Consultar.encerrada()) {
 			System.out.println("\n=== Alterar ===\n"
 					+ "1 Tutor\n"
 					+ "2 Pet\n"
 					+ "3 Serviço\n"
 					+ "4 Remover vínculo Pet-Serviço\n"
 					+ "0 Voltar");
-			String opcao = Util.ler("Opção");
+			String opcao = Consultar.ler("Opção");
 			switch (opcao) {
 			case "1":
 				alterarTutor(db);
@@ -61,7 +61,7 @@ public class Alterar {
 		for (Pet p : servico.getListaPets()) {
 			System.out.println("  #" + p.getId() + " " + p.getNome());
 		}
-		Integer id = Util.inteiro("Id do pet a desvincular");
+		Integer id = Consultar.inteiro("Id do pet a desvincular");
 		if (id == null) {
 			return;
 		}
@@ -89,8 +89,8 @@ public class Alterar {
 			return;
 		}
 
-		String nome = Util.textoOpcional("Novo nome", tutor.getNome());
-		if (nome == null || Util.encerrada()) {
+		String nome = textoOpcional("Novo nome", tutor.getNome());
+		if (nome == null || Consultar.encerrada()) {
 			return;
 		}
 
@@ -106,23 +106,23 @@ public class Alterar {
 			return;
 		}
 
-		String nome = Util.textoOpcional("Novo nome", pet.getNome());
+		String nome = textoOpcional("Novo nome", pet.getNome());
 		if (nome == null) {
 			return;
 		}
-		String raca = Util.textoOpcional("Nova raça", pet.getRaca());
+		String raca = textoOpcional("Nova raça", pet.getRaca());
 		if (raca == null) {
 			return;
 		}
 
 		Tutor novoTutor = pet.getTutor();
-		if (Util.confirmar("Deseja alterar o tutor")) {
+		if (Apagar.confirmar("Deseja alterar o tutor")) {
 			novoTutor = Consultar.escolherTutor(db);
 			if (novoTutor == null) {
 				return;
 			}
 		}
-		if (Util.encerrada()) {
+		if (Consultar.encerrada()) {
 			return;
 		}
 
@@ -142,23 +142,23 @@ public class Alterar {
 			return;
 		}
 
-		String data = Util.dataOpcional("Nova data", servico.getData());
+		String data = dataOpcional("Nova data", servico.getData());
 		if (data == null) {
 			return;
 		}
-		BigDecimal valor = Util.valorOpcional("Novo valor", servico.getValor());
+		BigDecimal valor = valorOpcional("Novo valor", servico.getValor());
 		if (valor == null) {
 			return;
 		}
 
 		List<Pet> pets = null;
-		if (Util.confirmar("Deseja alterar os pets do serviço")) {
+		if (Apagar.confirmar("Deseja alterar os pets do serviço")) {
 			pets = Consultar.escolherPets(db);
 			if (pets == null) {
 				return;
 			}
 		}
-		if (Util.encerrada()) {
+		if (Consultar.encerrada()) {
 			return;
 		}
 
@@ -180,5 +180,48 @@ public class Alterar {
 		}
 		db.commit();
 		System.out.println("Serviço alterado: " + servico);
+	}
+
+	//validacao de entrada da alteracao
+	static String textoOpcional(String prompt, String atual) {
+		String s = Consultar.ler(prompt + " (Enter mantém " + atual + ")");
+		if (Consultar.cancelado(s)) {
+			return null;
+		}
+		return s.isEmpty() ? atual : s;
+	}
+
+	static String dataOpcional(String prompt, String atual) {
+		while (true) {
+			String s = Consultar.ler(prompt + " (dd/MM/aaaa, Enter mantém " + atual + ")");
+			if (Consultar.cancelado(s)) {
+				return null;
+			}
+			if (s.isEmpty()) {
+				return atual;
+			}
+			LocalDate d = Consultar.data(s);
+			if (d != null) {
+				return d.format(Consultar.DATA);
+			}
+			System.out.println("Data inválida; use dd/MM/aaaa e tente novamente.");
+		}
+	}
+
+	static BigDecimal valorOpcional(String prompt, BigDecimal atual) {
+		while (true) {
+			String s = Consultar.ler(prompt + " (Enter mantém " + atual.toPlainString() + ")");
+			if (Consultar.cancelado(s)) {
+				return null;
+			}
+			if (s.isEmpty()) {
+				return atual;
+			}
+			BigDecimal v = Cadastrar.dinheiro(s);
+			if (v != null) {
+				return v;
+			}
+			System.out.println("Valor inválido; tente novamente.");
+		}
 	}
 }
