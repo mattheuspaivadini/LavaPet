@@ -6,9 +6,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class Servico {
-	private int id;
+	private int id; // gerado por util.GeradorID
 	private String data;
-	private BigDecimal valor;
+	private String valor;
 	private List<Pet> listaPets = new ArrayList<>();
 
 	public Servico(String data, BigDecimal valor) {
@@ -16,20 +16,11 @@ public class Servico {
 			throw new IllegalArgumentException("Servico precisa de data e valor");
 		}
 		this.data = data;
-		this.valor = valor;
-	}
-
-	public Servico(int id, String data, BigDecimal valor) {
-		this(data, valor);
-		this.id = id;
+		this.valor = valor.toPlainString();
 	}
 
 	public int getId() {
 		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
 	}
 
 	public String getData() {
@@ -44,14 +35,14 @@ public class Servico {
 	}
 
 	public BigDecimal getValor() {
-		return valor;
+		return new BigDecimal(valor);
 	}
 
 	public void setValor(BigDecimal valor) {
 		if (valor == null) {
 			throw new IllegalArgumentException("valor nao pode ser nulo");
 		}
-		this.valor = valor;
+		this.valor = valor.toPlainString();
 	}
 
 	public List<Pet> getListaPets() {
@@ -59,33 +50,21 @@ public class Servico {
 	}
 
 	public void adicionarPet(Pet pet) {
-		if (pet == null || listaPets.contains(pet)) {
-			return;
+		if (pet != null && !listaPets.contains(pet)) {
+			listaPets.add(pet);
+			pet.adicionarServico(this);
 		}
-		listaPets.add(pet);
-		pet.adicionarServico(this);
 	}
 
 	public void removerPet(Pet pet) {
-		if (pet == null || !listaPets.remove(pet)) {
-			return;
+		if (listaPets.remove(pet)) {
+			pet.removerServico(this);
 		}
-		pet.removerServico(this);
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("Servico [id=").append(id)
-				.append(", data=").append(data)
-				.append(", valor=").append(valor.toPlainString())
-				.append(", pets=[");
-		for (int i = 0; i < listaPets.size(); i++) {
-			if (i > 0) {
-				sb.append(", ");
-			}
-			sb.append(listaPets.get(i).getNome());
-		}
-		sb.append("]]");
-		return sb.toString();
+		return "Servico [id=" + id + ", data=" + data + ", valor=" + valor
+				+ ", pets=" + listaPets.stream().map(Pet::getNome).toList() + "]";
 	}
 }

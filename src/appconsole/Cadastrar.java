@@ -6,109 +6,57 @@ import com.db4o.ObjectContainer;
 import modelo.Pet;
 import modelo.Servico;
 import modelo.Tutor;
-import util.GeradorID;
-import util.Util;
 
 public class Cadastrar {
 
 	public static void main(String[] args) {
-		Util.executar(Cadastrar::executar);
+		Consultar.iniciar(Cadastrar::executar);
 	}
 
 	public static void executar(ObjectContainer db) {
-		boolean continuar = true;
-		while (continuar && !Util.encerrada()) {
-			System.out.println("\n=== Cadastrar ===\n"
-					+ "1 Tutor\n"
-					+ "2 Pet\n"
-					+ "3 Serviço\n"
-					+ "0 Voltar");
-			String opcao = Util.ler("Opção");
-			switch (opcao) {
-			case "1":
-				cadastrarTutor(db);
-				break;
-			case "2":
-				cadastrarPet(db);
-				break;
-			case "3":
-				cadastrarServico(db);
-				break;
-			case "0":
-				continuar = false;
-				break;
-			default:
-				System.out.println("Opção inválida.");
-				break;
-			}
-		}
+		Consultar.menu(db, "Cadastrar", "1 Tutor\n2 Pet\n3 Serviço",
+				Cadastrar::cadastrarTutor, Cadastrar::cadastrarPet, Cadastrar::cadastrarServico);
 	}
 
-	public static Tutor cadastrarTutor(ObjectContainer db) {
-		String nome = Util.texto("Nome do tutor");
+	public static void cadastrarTutor(ObjectContainer db) {
+		String nome = Consultar.texto("Nome do tutor");
 		if (nome == null) {
-			return null;
+			return;
 		}
-
 		Tutor tutor = new Tutor(nome);
-		tutor.setId(GeradorID.gerarIdTutor(db));
 		db.store(tutor);
 		db.commit();
 		System.out.println("Tutor cadastrado: " + tutor);
-		return tutor;
 	}
 
-	public static Pet cadastrarPet(ObjectContainer db) {
+	public static void cadastrarPet(ObjectContainer db) {
 		if (db.query(Tutor.class).isEmpty()) {
 			System.out.println("Cadastre um tutor antes de cadastrar um pet.");
-			return null;
+			return;
 		}
-
-		String nome = Util.texto("Nome do pet");
-		if (nome == null) {
-			return null;
-		}
-		String raca = Util.texto("Raça");
-		if (raca == null) {
-			return null;
-		}
-
-		Tutor tutor = Consultar.escolherTutor(db);
+		String nome = Consultar.texto("Nome do pet");
+		String raca = nome == null ? null : Consultar.texto("Raça");
+		Tutor tutor = raca == null ? null : Consultar.escolherTutor(db);
 		if (tutor == null) {
-			return null;
+			return;
 		}
-
 		Pet pet = new Pet(nome, raca, tutor);
-		pet.setId(GeradorID.gerarIdPet(db));
 		db.store(pet);
 		db.commit();
 		System.out.println("Pet cadastrado: " + pet);
-		return pet;
 	}
 
-	public static Servico cadastrarServico(ObjectContainer db) {
-		String data = Util.dataPrompt("Data do serviço");
-		if (data == null) {
-			return null;
-		}
-		BigDecimal valor = Util.valorPrompt("Valor do serviço");
-		if (valor == null) {
-			return null;
-		}
-
-		List<Pet> pets = Consultar.escolherPets(db);
+	public static void cadastrarServico(ObjectContainer db) {
+		String data = Consultar.lerData("Data do serviço", null);
+		BigDecimal valor = data == null ? null : Consultar.lerValor("Valor do serviço", null);
+		List<Pet> pets = valor == null ? null : Consultar.escolherPets(db);
 		if (pets == null) {
-			return null;
+			return;
 		}
-
 		Servico servico = new Servico(data, valor);
-		servico.setId(GeradorID.gerarIdServico(db));
-		for (Pet pet : pets) {
-			servico.adicionarPet(pet);
-		}
+		pets.forEach(servico::adicionarPet);
 		db.store(servico);
 		db.commit();
 		System.out.println("Serviço cadastrado: " + servico);
-		return servico;
 	}
 }

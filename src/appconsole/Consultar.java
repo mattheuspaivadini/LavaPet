@@ -2,178 +2,73 @@ package appconsole;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import com.db4o.ObjectContainer;
+import com.db4o.query.Query;
+import util.Util;
 import modelo.Pet;
 import modelo.Servico;
 import modelo.Tutor;
-import util.GeradorID;
-import util.Util;
 
 public class Consultar {
 
 	public static void main(String[] args) {
-		Util.executar(Consultar::executar);
+		iniciar(Consultar::executar);
 	}
 
 	public static void executar(ObjectContainer db) {
-		boolean continuar = true;
-		while (continuar && !Util.encerrada()) {
-			System.out.println("\n=== Consultar ===\n"
-					+ "1 Listar tutores\n"
-					+ "2 Listar pets\n"
-					+ "3 Listar serviços\n"
-					+ "4 Tutor por nome\n"
-					+ "5 Pet por nome/raça/tutor\n"
-					+ "6 Serviço por pet/data/intervalo/valor mínimo\n"
-					+ "0 Voltar");
-			String opcao = Util.ler("Opção");
-			switch (opcao) {
-			case "1":
-				listarTutores(db);
-				break;
-			case "2":
-				listarPets(db);
-				break;
-			case "3":
-				listarServicos(db);
-				break;
-			case "4":
-				consultarTutor(db);
-				break;
-			case "5":
-				consultaPet(db);
-				break;
-			case "6":
-				consultaServico(db);
-				break;
-			case "0":
-				continuar = false;
-				break;
-			default:
-				System.out.println("Opção inválida.");
-				break;
-			}
-		}
+		menu(db, "Consultar", """
+				1 Listar tutores
+				2 Listar pets
+				3 Listar serviços
+				4 Tutor por nome
+				5 Pet por nome/raça/tutor
+				6 Serviço por pet/data/intervalo/valor mínimo""",
+				Consultar::listarTutores, Consultar::listarPets, Consultar::listarServicos,
+				Consultar::consultarTutor, Consultar::consultarPet, Consultar::consultarServico);
 	}
 
 	public static void listarTutores(ObjectContainer db) {
-		System.out.println("------------ TUTORES ------------");
-		List<Tutor> tutores = db.query(Tutor.class);
-		if (tutores.isEmpty()) {
-			System.out.println("Nenhum tutor cadastrado.");
-		} else {
-			for (Tutor t : tutores) {
-				System.out.println(t);
-			}
-		}
+		listar(db, Tutor.class, "TUTORES", "tutor");
 	}
 
 	public static void listarPets(ObjectContainer db) {
-		System.out.println("\n------------ PETS ------------");
-		List<Pet> pets = db.query(Pet.class);
-		if (pets.isEmpty()) {
-			System.out.println("Nenhum pet cadastrado.");
-		} else {
-			for (Pet p : pets) {
-				System.out.println(p);
-			}
-		}
+		listar(db, Pet.class, "PETS", "pet");
 	}
 
 	public static void listarServicos(ObjectContainer db) {
-		System.out.println("\n------------ SERVICOS ------------");
-		List<Servico> servicos = db.query(Servico.class);
-		if (servicos.isEmpty()) {
-			System.out.println("Nenhum serviço cadastrado.");
-		} else {
-			for (Servico s : servicos) {
-				System.out.println(s);
-			}
-		}
-	}
-
-	public static Tutor buscarTutorPorId(ObjectContainer db, int id) {
-		List<Tutor> encontrados = GeradorID.query(db, Tutor.class, t -> t.getId() == id);
-		return encontrados.isEmpty() ? null : encontrados.get(0);
-	}
-
-	public static Pet buscarPetPorId(ObjectContainer db, int id) {
-		List<Pet> encontrados = GeradorID.query(db, Pet.class, p -> p.getId() == id);
-		return encontrados.isEmpty() ? null : encontrados.get(0);
-	}
-
-	public static Servico buscarServicoPorId(ObjectContainer db, int id) {
-		List<Servico> encontrados = GeradorID.query(db, Servico.class, s -> s.getId() == id);
-		return encontrados.isEmpty() ? null : encontrados.get(0);
+		listar(db, Servico.class, "SERVICOS", "serviço");
 	}
 
 	public static Tutor escolherTutor(ObjectContainer db) {
-		listarTutores(db);
-		if (db.query(Tutor.class).isEmpty()) {
-			return null;
-		}
-		Integer id = Util.inteiro("ID do tutor");
-		while (id != null) {
-			Tutor tutor = buscarTutorPorId(db, id);
-			if (tutor != null) {
-				return tutor;
-			}
-			System.out.println("Tutor não encontrado.");
-			id = Util.inteiro("ID do tutor");
-		}
-		return null;
+		return escolher(db, Tutor.class, "TUTORES", "tutor");
 	}
 
 	public static Pet escolherPet(ObjectContainer db) {
-		listarPets(db);
-		if (db.query(Pet.class).isEmpty()) {
-			return null;
-		}
-		Integer id = Util.inteiro("ID do pet");
-		while (id != null) {
-			Pet pet = buscarPetPorId(db, id);
-			if (pet != null) {
-				return pet;
-			}
-			System.out.println("Pet não encontrado.");
-			id = Util.inteiro("ID do pet");
-		}
-		return null;
+		return escolher(db, Pet.class, "PETS", "pet");
 	}
 
 	public static Servico escolherServico(ObjectContainer db) {
-		listarServicos(db);
-		if (db.query(Servico.class).isEmpty()) {
-			return null;
-		}
-		Integer id = Util.inteiro("ID do serviço");
-		while (id != null) {
-			Servico servico = buscarServicoPorId(db, id);
-			if (servico != null) {
-				return servico;
-			}
-			System.out.println("Serviço não encontrado.");
-			id = Util.inteiro("ID do serviço");
-		}
-		return null;
+		return escolher(db, Servico.class, "SERVICOS", "serviço");
 	}
 
 	public static List<Pet> escolherPets(ObjectContainer db) {
-		listarPets(db);
-		if (db.query(Pet.class).isEmpty()) {
+		if (listar(db, Pet.class, "PETS", "pet").isEmpty()) {
 			System.out.println("Cadastre um pet antes de vincular serviços.");
 			return null;
 		}
 		while (true) {
-			String entrada = Util.ler("IDs dos pets (separados por vírgula)");
-			if (Util.cancelado(entrada)) {
+			String entrada = ler("IDs dos pets (separados por vírgula)");
+			if (cancelado(entrada)) {
 				return null;
-			}
-			if (entrada.isEmpty()) {
-				System.out.println("Informe ao menos um pet.");
-				continue;
 			}
 			List<Pet> pets = new ArrayList<>();
 			boolean invalido = false;
@@ -182,12 +77,7 @@ public class Consultar {
 				if (valor.isEmpty()) {
 					continue;
 				}
-				Pet pet = null;
-				try {
-					pet = buscarPetPorId(db, Integer.parseInt(valor));
-				} catch (NumberFormatException e) {
-					pet = null;
-				}
+				Pet pet = valor.matches("\\d{1,9}") ? buscarPorId(db, Pet.class, Integer.parseInt(valor)) : null;
 				if (pet == null) {
 					System.out.println("Pet não encontrado: " + valor);
 					invalido = true;
@@ -197,141 +87,251 @@ public class Consultar {
 			}
 			if (invalido) {
 				System.out.println("Corrija os IDs informados.");
-				continue;
-			}
-			if (pets.isEmpty()) {
+			} else if (pets.isEmpty()) {
 				System.out.println("Informe ao menos um pet.");
-				continue;
+			} else {
+				return pets;
 			}
-			return pets;
 		}
 	}
 
 	private static void consultarTutor(ObjectContainer db) {
-		String trecho = Util.texto("Nome ou trecho");
-		if (trecho == null) {
-			return;
+		String trecho = texto("Nome ou trecho");
+		if (trecho != null) {
+			mostrar(db, Tutor.class, t -> contem(t.getNome(), trecho));
 		}
-
-		List<Tutor> encontrados = GeradorID.query(db, Tutor.class, t -> contem(t.getNome(), trecho));
-		resultados(encontrados);
 	}
 
-	private static void consultaPet(ObjectContainer db) {
+	private static void consultarPet(ObjectContainer db) {
 		System.out.println("1 Nome | 2 Raça | 3 Tutor (trecho do nome)");
-		String op = Util.ler("Critério");
-		String criterio = Util.texto("Valor");
-		if (criterio == null) {
+		Function<Pet, String> campo = switch (ler("Critério")) {
+		case "1" -> Pet::getNome;
+		case "2" -> Pet::getRaca;
+		case "3" -> p -> p.getTutor() == null ? null : p.getTutor().getNome();
+		default -> null;
+		};
+		if (campo == null) {
+			System.out.println("Opção inválida.");
 			return;
 		}
-
-		if (op.equals("1")) {
-			consultarPetPorNome(db, criterio);
-		} else if (op.equals("2")) {
-			consultarPetPorRaca(db, criterio);
-		} else if (op.equals("3")) {
-			consultarPetPorTutor(db, criterio);
-		} else {
-			System.out.println("Opção inválida.");
+		String valor = texto("Valor");
+		if (valor != null) {
+			mostrar(db, Pet.class, p -> contem(campo.apply(p), valor));
 		}
 	}
 
-	private static void consultarPetPorNome(ObjectContainer db, String nome) {
-		List<Pet> encontrados = GeradorID.query(db, Pet.class, p -> contem(p.getNome(), nome));
-		resultados(encontrados);
-	}
-
-	private static void consultarPetPorRaca(ObjectContainer db, String raca) {
-		List<Pet> encontrados = GeradorID.query(db, Pet.class, p -> contem(p.getRaca(), raca));
-		resultados(encontrados);
-	}
-
-	private static void consultarPetPorTutor(ObjectContainer db, String nomeTutor) {
-		List<Pet> encontrados = GeradorID.query(db, Pet.class,
-				p -> p.getTutor() != null && contem(p.getTutor().getNome(), nomeTutor));
-		resultados(encontrados);
-	}
-
-	private static void consultaServico(ObjectContainer db) {
+	private static void consultarServico(ObjectContainer db) {
 		System.out.println("1 Pet (trecho do nome) | 2 Data | 3 Intervalo de datas | 4 Valor mínimo");
-		String op = Util.ler("Critério");
-		if (op.equals("1")) {
-			consultarServicoPorPet(db);
-		} else if (op.equals("2")) {
-			consultarServicoPorData(db);
-		} else if (op.equals("3")) {
-			consultarServicoPorIntervalo(db);
-		} else if (op.equals("4")) {
-			consultarServicoPorValorMinimo(db);
-		} else {
-			System.out.println("Opção inválida.");
-		}
-	}
-
-	private static void consultarServicoPorPet(ObjectContainer db) {
-		String nomePet = Util.texto("Nome do pet");
-		if (nomePet == null) {
-			return;
-		}
-
-		List<Servico> encontrados = GeradorID.query(db, Servico.class, s -> {
-			for (Pet p : s.getListaPets()) {
-				if (contem(p.getNome(), nomePet)) {
-					return true;
-				}
+		switch (ler("Critério")) {
+		case "1" -> {
+			String nomePet = texto("Nome do pet");
+			if (nomePet != null) {
+				mostrar(db, Servico.class, s -> s.getListaPets().stream().anyMatch(p -> contem(p.getNome(), nomePet)));
 			}
-			return false;
-		});
-		resultados(encontrados);
+		}
+		case "2" -> {
+			String data = lerData("Data", null);
+			if (data != null) {
+				mostrar(db, Servico.class, s -> s.getData().equals(data));
+			}
+		}
+		case "3" -> {
+			LocalDate inicio = data(lerData("Data inicial", null));
+			LocalDate fim = data(lerData("Data final", null));
+			if (inicio != null && fim != null && !fim.isBefore(inicio)) {
+				mostrar(db, Servico.class, s -> !data(s.getData()).isBefore(inicio) && !data(s.getData()).isAfter(fim));
+			} else {
+				System.out.println("Intervalo inválido.");
+			}
+		}
+		case "4" -> {
+			BigDecimal minimo = lerValor("Valor mínimo", null);
+			if (minimo != null) {
+				mostrar(db, Servico.class, s -> s.getValor().compareTo(minimo) >= 0);
+			}
+		}
+		default -> System.out.println("Opção inválida.");
+		}
 	}
 
-	private static void consultarServicoPorData(ObjectContainer db) {
-		String data = Util.dataPrompt("Data");
-		if (data == null) {
-			return;
+	// --- acesso generico ao banco (Tutor, Pet e Servico tem o campo "id") ---
+	private static <T> List<T> listar(ObjectContainer db, Class<T> tipo, String titulo, String nome) {
+		System.out.println("\n------------ " + titulo + " ------------");
+		List<T> itens = db.query(tipo);
+		if (itens.isEmpty()) {
+			System.out.println("Nenhum " + nome + " cadastrado.");
 		}
-
-		List<Servico> encontrados = GeradorID.query(db, Servico.class, s -> s.getData().equals(data));
-		resultados(encontrados);
+		itens.forEach(System.out::println);
+		return itens;
 	}
 
-	private static void consultarServicoPorIntervalo(ObjectContainer db) {
-		LocalDate dataInicial = Util.data(Util.dataPrompt("Data inicial"));
-		LocalDate dataFinal = Util.data(Util.dataPrompt("Data final"));
-		if (dataInicial != null && dataFinal != null && !dataFinal.isBefore(dataInicial)) {
-			List<Servico> encontrados = GeradorID.query(db, Servico.class,
-					s -> !Util.data(s.getData()).isBefore(dataInicial) && !Util.data(s.getData()).isAfter(dataFinal));
-			resultados(encontrados);
-		} else {
-			System.out.println("Intervalo inválido.");
+	private static <T> T escolher(ObjectContainer db, Class<T> tipo, String titulo, String nome) {
+		if (listar(db, tipo, titulo, nome).isEmpty()) {
+			return null;
 		}
+		for (Integer id = inteiro("ID do " + nome); id != null; id = inteiro("ID do " + nome)) {
+			T item = buscarPorId(db, tipo, id);
+			if (item != null) {
+				return item;
+			}
+			System.out.println("ID " + id + " não encontrado.");
+		}
+		return null;
 	}
 
-	private static void consultarServicoPorValorMinimo(ObjectContainer db) {
-		BigDecimal valorMinimo = Util.valorPrompt("Valor mínimo");
-		if (valorMinimo == null) {
-			return;
-		}
+	static <T> T buscarPorId(ObjectContainer db, Class<T> tipo, int id) {
+		Query q = db.query();
+		q.constrain(tipo);
+		q.descend("id").constrain(id);
+		List<T> encontrados = q.execute();
+		return encontrados.isEmpty() ? null : encontrados.get(0);
+	}
 
-		List<Servico> encontrados = GeradorID.query(db, Servico.class, s -> s.getValor().compareTo(valorMinimo) >= 0);
-		resultados(encontrados);
+	private static <T> void mostrar(ObjectContainer db, Class<T> tipo, Predicate<T> filtro) {
+		List<T> encontrados = db.query(tipo).stream().filter(filtro).toList();
+		if (encontrados.isEmpty()) {
+			System.out.println("Nenhum resultado encontrado.");
+		}
+		encontrados.forEach(System.out::println);
 	}
 
 	private static boolean contem(String s, String trecho) {
 		return s != null && s.toLowerCase().contains(trecho.toLowerCase());
 	}
 
-	private static void mostrar(List<?> itens) {
-		for (Object o : itens) {
-			System.out.println(o);
+	// --- ciclo de vida e menus ---
+	static void iniciar(Consumer<ObjectContainer> operacao) {
+		Util.conectar();
+		try {
+			operacao.accept(Util.getManager());
+		} catch (Exception e) {
+			System.out.println("ERRO: " + e.getMessage());
+			e.printStackTrace(System.out);
+		} finally {
+			Util.desconectar();
 		}
 	}
 
-	private static void resultados(List<?> itens) {
-		if (itens.isEmpty()) {
-			System.out.println("Nenhum resultado encontrado.");
-		} else {
-			mostrar(itens);
+	// opcoes: texto exibido, numerado de 1 em diante na mesma ordem de acoes
+	@SafeVarargs
+	static void menu(ObjectContainer db, String titulo, String opcoes, Consumer<ObjectContainer>... acoes) {
+		while (!encerrada()) {
+			System.out.println("\n=== " + titulo + " ===\n" + opcoes + "\n0 Voltar");
+			String op = ler("Opção");
+			if (op.equals("0")) {
+				return;
+			}
+			int i = op.matches("[1-9]") ? op.charAt(0) - '1' : -1;
+			if (i >= 0 && i < acoes.length) {
+				acoes[i].accept(db);
+			} else {
+				System.out.println("Opção inválida.");
+			}
+		}
+	}
+
+	// --- leitura do teclado: valida a entrada antes de qualquer acesso ao banco ---
+	private static final Scanner IN = new Scanner(System.in);
+	private static final DateTimeFormatter DATA = DateTimeFormatter.ofPattern("dd/MM/uuuu")
+			.withResolverStyle(ResolverStyle.STRICT);
+	private static final String CANCELAR = ":cancelar";
+	private static boolean entradaEncerrada;
+
+	static boolean encerrada() {
+		return entradaEncerrada;
+	}
+
+	static boolean cancelado(String valor) {
+		return CANCELAR.equals(valor);
+	}
+
+	static String ler(String prompt) {
+		System.out.print(prompt + ": ");
+		if (IN.hasNextLine()) {
+			return IN.nextLine().trim();
+		}
+		entradaEncerrada = true;
+		System.out.println("\nFim da entrada.");
+		return CANCELAR;
+	}
+
+	static String texto(String prompt) {
+		while (true) {
+			String s = ler(prompt);
+			if (cancelado(s)) {
+				return null;
+			}
+			if (!s.isEmpty()) {
+				return s;
+			}
+			System.out.println("O campo não pode ficar vazio. Tente novamente ou digite :cancelar.");
+		}
+	}
+
+	static Integer inteiro(String prompt) {
+		return lerComo(prompt, null, s -> s.matches("-?\\d{1,9}") ? Integer.valueOf(s) : null,
+				"Número inválido; tente novamente.");
+	}
+
+	// atual == null: campo obrigatorio; senao Enter mantem o atual. null = cancelado
+	static <T> T lerComo(String prompt, T atual, Function<String, T> conversor, String erro) {
+		while (true) {
+			String s = atual == null ? texto(prompt) : ler(prompt + " (Enter mantém " + atual + ")");
+			if (s == null || cancelado(s)) {
+				return null;
+			}
+			if (s.isEmpty()) {
+				return atual;
+			}
+			T valor = conversor.apply(s);
+			if (valor != null) {
+				return valor;
+			}
+			System.out.println(erro);
+		}
+	}
+
+	static String lerData(String prompt, String atual) {
+		return lerComo(prompt + " (dd/MM/aaaa)", atual, s -> {
+			LocalDate d = data(s);
+			return d == null ? null : d.format(DATA);
+		}, "Data inválida; use dd/MM/aaaa e tente novamente.");
+	}
+
+	static BigDecimal lerValor(String prompt, BigDecimal atual) {
+		return lerComo(prompt, atual, Consultar::dinheiro, "Valor inválido; tente novamente.");
+	}
+
+	// confirmacao antes de qualquer remocao/alteracao destrutiva
+	static boolean confirmar(String prompt) {
+		while (true) {
+			String s = ler(prompt + " (s/n)").toLowerCase();
+			if (cancelado(s) || s.equals("n") || s.equals("nao") || s.equals("não")) {
+				return false;
+			}
+			if (s.equals("s") || s.equals("sim")) {
+				return true;
+			}
+			System.out.println("Responda com s ou n.");
+		}
+	}
+
+	static LocalDate data(String s) {
+		try {
+			return LocalDate.parse(s, DATA);
+		} catch (DateTimeParseException | NullPointerException e) {
+			return null;
+		}
+	}
+
+	static BigDecimal dinheiro(String s) {
+		if (s.contains(",") && s.contains(".")) {
+			return null;
+		}
+		try {
+			return new BigDecimal(s.trim().replace(',', '.'));
+		} catch (NumberFormatException e) {
+			return null;
 		}
 	}
 }
