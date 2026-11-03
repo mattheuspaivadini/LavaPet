@@ -16,7 +16,7 @@ public class Util {
 			return; // ja tem uma conexao
 
 		EmbeddedConfiguration config = Db4oEmbedded.newConfiguration();
-		config.common().messageLevel(0); .
+		config.common().messageLevel(0);
 
 		for (Class<?> c : new Class<?>[] { Tutor.class, Pet.class, Servico.class }) {
 			config.common().objectClass(c).cascadeOnDelete(false);
