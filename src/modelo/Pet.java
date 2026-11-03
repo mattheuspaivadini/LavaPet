@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Pet {
-	private int id;
+	private int id; // gerado por util.GeradorID
 	private String nome;
 	private String raca;
 	private Tutor tutor;
@@ -20,17 +20,8 @@ public class Pet {
 		setTutor(tutor);
 	}
 
-	public Pet(int id, String nome, String raca, Tutor tutor) {
-		this(nome, raca, tutor);
-		this.id = id;
-	}
-
 	public int getId() {
 		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
 	}
 
 	public String getNome() {
@@ -72,35 +63,22 @@ public class Pet {
 	}
 
 	public void adicionarServico(Servico servico) {
-		if (servico == null || listaServicos.contains(servico)) {
-			return;
+		if (servico != null && !listaServicos.contains(servico)) {
+			listaServicos.add(servico);
+			servico.adicionarPet(this);
 		}
-		listaServicos.add(servico);
-		servico.adicionarPet(this);
 	}
 
 	public void removerServico(Servico servico) {
-		if (servico == null || !listaServicos.remove(servico)) {
-			return;
+		if (listaServicos.remove(servico)) {
+			servico.removerPet(this);
 		}
-		listaServicos.remove(servico);
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("Pet [id=").append(id)
-				.append(", nome=").append(nome)
-				.append(", raca=").append(raca)
-				.append(", tutor=").append(tutor == null ? "-" : tutor.getNome())
-				.append(", servicos=[");
-		for (int i = 0; i < listaServicos.size(); i++) {
-			Servico s = listaServicos.get(i);
-			if (i > 0) {
-				sb.append(", ");
-			}
-			sb.append("#").append(s.getId()).append(" ").append(s.getData());
-		}
-		sb.append("]]");
-		return sb.toString();
+		return "Pet [id=" + id + ", nome=" + nome + ", raca=" + raca
+				+ ", tutor=" + (tutor == null ? "-" : tutor.getNome())
+				+ ", servicos=" + listaServicos.stream().map(s -> "#" + s.getId() + " " + s.getData()).toList() + "]";
 	}
 }

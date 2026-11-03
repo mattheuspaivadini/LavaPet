@@ -12,7 +12,7 @@ import modelo.Servico;
 import modelo.Tutor;
 import util.Util;
 
-// Popula o lavapet.db4o: 5 tutores, 7 pets, 14 servicos por tutor (70 no total).
+// Popula o lavapet.db4o: 5 tutores, 7 pets, 2 servicos por tutor (10 no total).
 // ATENCAO: apaga todo o conteudo atual do lavapet.db4o antes de popular.
 public class PopularTest {
 	static final String[] TUTORES = { "Ana", "Bruno", "Carla", "Diego", "Elisa" };
@@ -21,9 +21,9 @@ public class PopularTest {
 	static final String[][] PETS = { { "Bob", "Beagle", "2" }, { "Thor", "Labrador", "1" },
 			{ "Rex", "Vira-lata", "0" }, { "Max", "Pug", "4" }, { "Luna", "Siames", "1" },
 			{ "Mel", "Poodle", "0" }, { "Nina", "Persa", "3" } };
-	// ordem em que os tutores recebem servicos: Diego (id 4) fica com os servicos 1..14, Ana com 15..28...
+	// ordem em que os tutores recebem servicos: Diego (id 4) fica com os servicos 1..2, Ana com 3..4...
 	static final int[] ORDEM_SERVICOS = { 3, 0, 4, 1, 2 };
-	static final int SERVICOS_POR_TUTOR = 14;
+	static final int SERVICOS_POR_TUTOR = 2;
 
 	public static void main(String[] args) {
 		Util.conectar();
@@ -67,7 +67,7 @@ public class PopularTest {
 			List<Servico> servicos = db.query(Servico.class);
 			verdade(tutores.size() == 5, "5 tutores, veio " + tutores.size());
 			verdade(pets.size() == 7, "7 pets, veio " + pets.size());
-			verdade(servicos.size() == 5 * SERVICOS_POR_TUTOR, "70 servicos, veio " + servicos.size());
+			verdade(servicos.size() == 5 * SERVICOS_POR_TUTOR, "10 servicos, veio " + servicos.size());
 
 			idsSequenciais(tutores.stream().map(Tutor::getId).toList(), "Tutor");
 			idsSequenciais(pets.stream().map(Pet::getId).toList(), "Pet");
@@ -96,7 +96,7 @@ public class PopularTest {
 		} finally {
 			Util.desconectar();
 		}
-		System.out.println("OK   PopularTest: 5 tutores, 7 pets, 14 servicos por tutor em lavapet.db4o");
+		System.out.println("OK   PopularTest: 5 tutores, 7 pets, 2 servicos por tutor em lavapet.db4o");
 	}
 
 	static void idsSequenciais(List<Integer> ids, String classe) {

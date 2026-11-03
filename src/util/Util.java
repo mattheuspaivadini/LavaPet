@@ -16,9 +16,8 @@ public class Util {
 			return; // ja tem uma conexao
 
 		EmbeddedConfiguration config = Db4oEmbedded.newConfiguration();
-		config.common().messageLevel(0); // mensagens na tela 0(desliga),1,2,3...
+		config.common().messageLevel(0); .
 
-		// cascata na alteracao e leitura; remocao manual (ver Apagar)
 		for (Class<?> c : new Class<?>[] { Tutor.class, Pet.class, Servico.class }) {
 			config.common().objectClass(c).cascadeOnDelete(false);
 			config.common().objectClass(c).cascadeOnUpdate(true);
