@@ -48,7 +48,7 @@ public class Alterar {
 
 	public static void alterarTutor(ObjectContainer db) {
 		Tutor tutor = Consultar.escolherTutor(db);
-		String nome = tutor == null ? null : Consultar.lerComo("Novo nome", tutor.getNome(), s -> s, null);
+		String nome = tutor == null ? null : Consultar.lerTexto("Novo nome", tutor.getNome());
 		if (nome == null) {
 			return;
 		}
@@ -60,8 +60,8 @@ public class Alterar {
 
 	public static void alterarPet(ObjectContainer db) {
 		Pet pet = Consultar.escolherPet(db);
-		String nome = pet == null ? null : Consultar.lerComo("Novo nome", pet.getNome(), s -> s, null);
-		String raca = nome == null ? null : Consultar.lerComo("Nova raça", pet.getRaca(), s -> s, null);
+		String nome = pet == null ? null : Consultar.lerTexto("Novo nome", pet.getNome());
+		String raca = nome == null ? null : Consultar.lerTexto("Nova raça", pet.getRaca());
 		if (raca == null) {
 			return;
 		}

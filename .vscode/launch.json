@@ -13,76 +13,30 @@
 			"name": "Alterar",
 			"request": "launch",
 			"mainClass": "appconsole.Alterar",
-			"projectName": "LavaPet"
-		},
-		{
-			"type": "java",
-			"name": "ApagarTest",
-			"request": "launch",
-			"mainClass": "teste.ApagarTest",
-			"projectName": "LavaPet"
-		},
-		{
-			"type": "java",
-			"name": "AlterarTest",
-			"request": "launch",
-			"mainClass": "teste.AlterarTest",
-			"projectName": "LavaPet"
-		},
-		{
-			"type": "java",
-			"name": "ListarTest",
-			"request": "launch",
-			"mainClass": "teste.ListarTest",
-			"projectName": "LavaPet"
-		},
-		{
-			"type": "java",
-			"name": "ConsultarTest",
-			"request": "launch",
-			"mainClass": "teste.ConsultarTest",
-			"projectName": "LavaPet"
-		},
-		{
-			"type": "java",
-			"name": "CadastrarTest",
-			"request": "launch",
-			"mainClass": "teste.CadastrarTest",
-			"projectName": "LavaPet"
-		},
-		{
-			"type": "java",
-			"name": "TesteAlterar",
-			"request": "launch",
-			"mainClass": "teste.TesteAlterar",
-			"projectName": "LavaPet"
+			"projectName": "LavaPet",
+			"console": "integratedTerminal"
 		},
 		{
 			"type": "java",
 			"name": "Apagar",
 			"request": "launch",
 			"mainClass": "appconsole.Apagar",
-			"projectName": "LavaPet"
+			"projectName": "LavaPet",
+			"console": "integratedTerminal"
 		},
 		{
 			"type": "java",
 			"name": "Consultar",
 			"request": "launch",
 			"mainClass": "appconsole.Consultar",
-			"projectName": "LavaPet"
+			"projectName": "LavaPet",
+			"console": "integratedTerminal"
 		},
 		{
 			"type": "java",
 			"name": "Cadastrar",
 			"request": "launch",
 			"mainClass": "appconsole.Cadastrar",
-			"projectName": "LavaPet"
-		},
-		{
-			"type": "java",
-			"name": "TesteCRUD",
-			"request": "launch",
-			"mainClass": "teste.TesteCRUD",
 			"projectName": "LavaPet",
 			"console": "integratedTerminal"
 		},

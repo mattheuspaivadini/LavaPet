@@ -137,8 +137,11 @@ public class Consultar {
 		}
 		case "3" -> {
 			LocalDate inicio = data(lerData("Data inicial", null));
-			LocalDate fim = data(lerData("Data final", null));
-			if (inicio != null && fim != null && !fim.isBefore(inicio)) {
+			LocalDate fim = inicio == null ? null : data(lerData("Data final", null));
+			if (fim == null) {
+				return; // cancelado
+			}
+			if (!fim.isBefore(inicio)) {
 				mostrar(db, Servico.class, s -> !data(s.getData()).isBefore(inicio) && !data(s.getData()).isAfter(fim));
 			} else {
 				System.out.println("Intervalo inválido.");
@@ -289,6 +292,10 @@ public class Consultar {
 			}
 			System.out.println(erro);
 		}
+	}
+
+	static String lerTexto(String prompt, String atual) {
+		return lerComo(prompt, atual, s -> s, null);
 	}
 
 	static String lerData(String prompt, String atual) {
