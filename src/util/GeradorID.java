@@ -26,11 +26,11 @@ public class GeradorID {
 			} catch (NoSuchFieldException e) {
 				return; // classe sem id (ex.: o proprio RegistroID)
 			}
+			campo.setAccessible(true);
 			RegistroID registro = registros.computeIfAbsent(objeto.getClass().getName(),
-					nome -> lerRegistroID(manager, nome));
+					nome -> lerRegistroID(manager, objeto.getClass(), campo));
 			registro.incrementarID();
 			try {
-				campo.setAccessible(true);
 				campo.setInt(objeto, registro.getid());
 			} catch (IllegalAccessException e) {
 				throw new IllegalStateException(e);
@@ -45,12 +45,28 @@ public class GeradorID {
 		registros.clear();
 	}
 
-	private static RegistroID lerRegistroID(ObjectContainer manager, String nomeclasse) {
+	private static RegistroID lerRegistroID(ObjectContainer manager, Class<?> classe, Field campo) {
 		Query q = manager.query();
 		q.constrain(RegistroID.class);
-		q.descend("nomedaclasse").constrain(nomeclasse);
+		q.descend("nomedaclasse").constrain(classe.getName());
 		List<RegistroID> resultados = q.execute();
-		return resultados.isEmpty() ? new RegistroID(nomeclasse) : resultados.get(0);
+		RegistroID registro = resultados.isEmpty() ? new RegistroID(classe.getName()) : resultados.get(0);
+
+		// O contador so e gravado em salvar() (no desconectar). Se o programa for encerrado a forca
+		// (Ctrl+C, fechar o terminal) depois de um commit, o contador fica atrasado e os proximos
+		// objetos receberiam ids ja usados. Por isso ele nunca comeca abaixo do maior id ja gravado.
+		Query maior = manager.query();
+		maior.constrain(classe);
+		maior.descend("id").orderDescending();
+		List<Object> objetos = maior.execute();
+		if (!objetos.isEmpty()) {
+			try {
+				registro.garantirMinimo(campo.getInt(objetos.get(0)));
+			} catch (IllegalAccessException e) {
+				throw new IllegalStateException(e);
+			}
+		}
+		return registro;
 	}
 }
 
@@ -69,6 +85,10 @@ class RegistroID {
 
 	void incrementarID() {
 		ultimoid++;
+	}
+
+	void garantirMinimo(int id) {
+		ultimoid = Math.max(ultimoid, id);
 	}
 
 	@Override
