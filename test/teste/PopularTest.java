@@ -12,7 +12,7 @@ import modelo.Servico;
 import modelo.Tutor;
 import util.Util;
 
-// Popula o lavapet.db4o: 5 tutores, 7 pets, 2 servicos por tutor (10 no total).
+// Popula o lavapet.db4o: 5 tutores, 7 pets, 10 servicos (8 com 2-3 pets, 2 com 1 pet).
 // ATENCAO: apaga todo o conteudo atual do lavapet.db4o antes de popular.
 public class PopularTest {
 	static final String[] TUTORES = { "Ana", "Bruno", "Carla", "Diego", "Elisa" };
@@ -21,9 +21,10 @@ public class PopularTest {
 	static final String[][] PETS = { { "Bob", "Beagle", "2" }, { "Thor", "Labrador", "1" },
 			{ "Rex", "Vira-lata", "0" }, { "Max", "Pug", "4" }, { "Luna", "Siames", "1" },
 			{ "Mel", "Poodle", "0" }, { "Nina", "Persa", "3" } };
-	// ordem em que os tutores recebem servicos: Diego (id 4) fica com os servicos 1..2, Ana com 3..4...
-	static final int[] ORDEM_SERVICOS = { 3, 0, 4, 1, 2 };
-	static final int SERVICOS_POR_TUTOR = 2;
+	// servico i -> indices dos pets (0..6, ordem de PETS); pets de tutores diferentes podem dividir um servico.
+	// 8 servicos com 2-3 pets e 2 (os dois ultimos) com apenas 1.
+	static final int[][] SERVICOS = { { 0, 1, 2 }, { 3, 4 }, { 5, 6 }, { 0, 3, 5 }, { 1, 2 }, { 4, 6, 0 }, { 2, 5 },
+			{ 1, 3, 6 }, { 0 }, { 4 } };
 
 	public static void main(String[] args) {
 		Util.conectar();
@@ -42,16 +43,14 @@ public class PopularTest {
 				db.store(new Pet(p[0], p[1], tutores[Integer.parseInt(p[2])]));
 			db.commit();
 
-			int dia = 0;
-			for (int indice : ORDEM_SERVICOS) {
-				List<Pet> pets = tutores[indice].getListaPets();
-				for (int s = 0; s < SERVICOS_POR_TUTOR; s++) {
-					Servico servico = new Servico(String.format("%02d/%02d/2026", dia % 28 + 1, dia / 28 + 1),
-							new BigDecimal(40 + s * 5));
-					servico.adicionarPet(pets.get(s % pets.size())); // reveza entre os pets do tutor
-					db.store(servico);
-					dia++;
-				}
+			List<Pet> todos = new java.util.ArrayList<>(db.query(Pet.class));
+			todos.sort((x, y) -> x.getId() - y.getId());
+			for (int i = 0; i < SERVICOS.length; i++) {
+				Servico servico = new Servico(String.format("%02d/%02d/2026", i % 28 + 1, i / 28 + 1),
+						new BigDecimal(40 + i % 2 * 5));
+				for (int idx : SERVICOS[i])
+					servico.adicionarPet(todos.get(idx));
+				db.store(servico);
 			}
 			db.commit();
 		} finally {
@@ -67,7 +66,7 @@ public class PopularTest {
 			List<Servico> servicos = db.query(Servico.class);
 			verdade(tutores.size() == 5, "5 tutores, veio " + tutores.size());
 			verdade(pets.size() == 7, "7 pets, veio " + pets.size());
-			verdade(servicos.size() == 5 * SERVICOS_POR_TUTOR, "10 servicos, veio " + servicos.size());
+			verdade(servicos.size() == SERVICOS.length, "10 servicos, veio " + servicos.size());
 
 			idsSequenciais(tutores.stream().map(Tutor::getId).toList(), "Tutor");
 			idsSequenciais(pets.stream().map(Pet::getId).toList(), "Pet");
@@ -82,21 +81,17 @@ public class PopularTest {
 								+ esperado[0] + " do tutor id " + (Integer.parseInt(esperado[2]) + 1));
 			}
 
-			for (Tutor t : tutores) {
-				Set<Servico> doTutor = new HashSet<>();
-				for (Pet p : t.getListaPets())
-					doTutor.addAll(p.getListaServicos());
-				verdade(doTutor.size() == SERVICOS_POR_TUTOR, t.getNome() + " tem " + doTutor.size() + " servicos");
-				int posicao = java.util.Arrays.stream(ORDEM_SERVICOS).boxed().toList().indexOf(t.getId() - 1);
-				int primeiro = posicao * SERVICOS_POR_TUTOR + 1;
-				for (Servico s : doTutor)
-					verdade(s.getId() >= primeiro && s.getId() < primeiro + SERVICOS_POR_TUTOR, "Servico id " + s.getId()
-							+ " do tutor id " + t.getId() + " fora de " + primeiro + ".." + (primeiro + SERVICOS_POR_TUTOR - 1));
+			for (Servico sv : servicos) {
+				int esperado = SERVICOS[sv.getId() - 1].length;
+				verdade(sv.getListaPets().size() == esperado,
+						"Servico id " + sv.getId() + " tem " + sv.getListaPets().size() + " pets, esperado " + esperado);
 			}
+			for (Pet p : pets)
+				verdade(!p.getListaServicos().isEmpty(), "Pet " + p.getNome() + " sem servicos");
 		} finally {
 			Util.desconectar();
 		}
-		System.out.println("OK   PopularTest: 5 tutores, 7 pets, 2 servicos por tutor em lavapet.db4o");
+		System.out.println("OK   PopularTest: 5 tutores, 7 pets, 10 servicos (2-3 pets cada, 2 com 1 pet) em lavapet.db4o");
 	}
 
 	static void idsSequenciais(List<Integer> ids, String classe) {

@@ -8,7 +8,8 @@ import java.util.List;
 public class Servico {
 	private int id; // gerado por util.GeradorID
 	private String data;
-	private BigDecimal valor; // persistido via translator em util.Util
+	// texto, nao BigDecimal: o db4o nao le BigDecimal no Java 9+ e o OME nao aceita translator
+	private String valor;
 	private List<Pet> listaPets = new ArrayList<>();
 
 	public Servico(String data, BigDecimal valor) {
@@ -16,7 +17,7 @@ public class Servico {
 			throw new IllegalArgumentException("Servico precisa de data e valor");
 		}
 		this.data = data;
-		this.valor = valor;
+		this.valor = valor.toString();
 	}
 
 	public int getId() {
@@ -35,14 +36,14 @@ public class Servico {
 	}
 
 	public BigDecimal getValor() {
-		return valor;
+		return new BigDecimal(valor);
 	}
 
 	public void setValor(BigDecimal valor) {
 		if (valor == null) {
 			throw new IllegalArgumentException("valor nao pode ser nulo");
 		}
-		this.valor = valor;
+		this.valor = valor.toString();
 	}
 
 	public List<Pet> getListaPets() {
@@ -64,7 +65,7 @@ public class Servico {
 
 	@Override
 	public String toString() {
-		return "Servico [id=" + id + ", data=" + data + ", valor=" + valor.toPlainString()
+		return "Servico [id=" + id + ", data=" + data + ", valor=" + getValor().toPlainString()
 				+ ", pets=" + listaPets.stream().map(Pet::getNome).toList() + "]";
 	}
 }

@@ -233,7 +233,7 @@ public class Consultar {
 		}
 	}
 
-	// --- leitura do teclado: valida a entrada antes de qualquer acesso ao banco ---
+	// leitura do teclado: valida a entrada antes de qualquer acesso ao banco
 	private static final Scanner IN = new Scanner(System.in);
 	private static final DateTimeFormatter DATA = DateTimeFormatter.ofPattern("dd/MM/uuuu")
 			.withResolverStyle(ResolverStyle.STRICT);
