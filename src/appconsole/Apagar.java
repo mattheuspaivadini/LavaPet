@@ -66,9 +66,11 @@ public class Apagar {
 
 	// sem commit: quem chama confirma tudo de uma vez
 	private static void excluirPet(ObjectContainer db, Pet pet) {
+		// o pet pode vir parcialmente ativado (ex.: alcancado pelo grafo de um tutor/servico)
+		db.activate(pet, Integer.MAX_VALUE);
 		for (Servico servico : new ArrayList<>(pet.getListaServicos())) {
 			servico.removerPet(pet);
-			db.store(servico);
+			db.delete(servico);
 		}
 		Tutor tutor = pet.getTutor();
 		tutor.removerPet(pet);
