@@ -12,12 +12,8 @@ import modelo.Servico;
 import modelo.Tutor;
 import util.Util;
 
-// Popula o lavapet.db4o: 5 tutores, 7 pets, 10 servicos (8 com 2-3 pets, 2 com 1 pet).
-// ATENCAO: apaga todo o conteudo atual do lavapet.db4o antes de popular.
 public class PopularTest {
 	static final String[] TUTORES = { "Ana", "Bruno", "Carla", "Diego", "Elisa" };
-	// pet -> indice do tutor, fora de ordem de proposito: o id do pet nao segue o do tutor
-	// (Ana, tutor id 1, fica com os pets id 3 e 6; Bruno, id 2, com os pets 2 e 5)
 	static final String[][] PETS = { { "Bob", "Beagle", "2" }, { "Thor", "Labrador", "1" },
 			{ "Rex", "Vira-lata", "0" }, { "Max", "Pug", "4" }, { "Luna", "Siames", "1" },
 			{ "Mel", "Poodle", "0" }, { "Nina", "Persa", "3" } };
@@ -28,7 +24,7 @@ public class PopularTest {
 		Util.conectar();
 		ObjectContainer db = Util.getManager();
 		try {
-			for (Object o : db.query(Object.class)) // inclui RegistroID: ids recomecam em 1
+			for (Object o : db.query(Object.class))
 				db.delete(o);
 			db.commit();
 
@@ -55,7 +51,6 @@ public class PopularTest {
 			Util.desconectar();
 		}
 
-		// releitura em conexao nova: o que se verifica veio do disco
 		Util.conectar();
 		db = Util.getManager();
 		try {
@@ -70,7 +65,6 @@ public class PopularTest {
 			idsSequenciais(pets.stream().map(Pet::getId).toList(), "Pet");
 			idsSequenciais(servicos.stream().map(Servico::getId).toList(), "Servico");
 
-			// ids sao de cada classe: o pet id N e o N-esimo criado, seja qual for o id do seu tutor
 			for (Pet p : pets) {
 				String[] esperado = PETS[p.getId() - 1];
 				Tutor dono = p.getTutor();
