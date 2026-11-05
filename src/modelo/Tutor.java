@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Tutor {
-	private int id; // gerado por util.GeradorID
+	private int id;
 	private String nome;
 	private List<Pet> listaPets = new ArrayList<>();
 

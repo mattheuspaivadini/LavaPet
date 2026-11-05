@@ -45,7 +45,6 @@ public class Apagar {
 		if (servico == null || !confirmado("Excluir o serviço e remover seus vínculos")) {
 			return;
 		}
-		// pets alcancados pelo grafo do servico vem parcialmente ativados e nao removeriam o servico da propria lista
 		db.activate(servico, Integer.MAX_VALUE);
 		for (Pet pet : new ArrayList<>(servico.getListaPets())) {
 			servico.removerPet(pet);
@@ -64,13 +63,15 @@ public class Apagar {
 		return false;
 	}
 
-	// sem commit: quem chama confirma tudo de uma vez
 	private static void excluirPet(ObjectContainer db, Pet pet) {
-		// o pet pode vir parcialmente ativado (ex.: alcancado pelo grafo de um tutor/servico)
 		db.activate(pet, Integer.MAX_VALUE);
 		for (Servico servico : new ArrayList<>(pet.getListaServicos())) {
 			servico.removerPet(pet);
-			db.delete(servico);
+			if (servico.getListaPets().isEmpty()) {
+				db.delete(servico);
+			} else {
+				db.store(servico);
+			}
 		}
 		Tutor tutor = pet.getTutor();
 		tutor.removerPet(pet);

@@ -21,8 +21,6 @@ public class PopularTest {
 	static final String[][] PETS = { { "Bob", "Beagle", "2" }, { "Thor", "Labrador", "1" },
 			{ "Rex", "Vira-lata", "0" }, { "Max", "Pug", "4" }, { "Luna", "Siames", "1" },
 			{ "Mel", "Poodle", "0" }, { "Nina", "Persa", "3" } };
-	// servico i -> indices dos pets (0..6, ordem de PETS); pets de tutores diferentes podem dividir um servico.
-	// 8 servicos com 2-3 pets e 2 (os dois ultimos) com apenas 1.
 	static final int[][] SERVICOS = { { 0, 1, 2 }, { 3, 4 }, { 5, 6 }, { 0, 3, 5 }, { 1, 2 }, { 4, 6, 0 }, { 2, 5 },
 			{ 1, 3, 6 }, { 0 }, { 4 } };
 

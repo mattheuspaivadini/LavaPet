@@ -17,14 +17,13 @@ public class GeradorID {
 		registros.clear();
 		EventRegistry eventRegistry = EventRegistryFactory.forObjectContainer(manager);
 
-		// "BEFORE PERSIST": disparado antes de gravar um objeto novo
 		eventRegistry.creating().addListener((event, args) -> {
 			Object objeto = args.object();
 			Field campo;
 			try {
 				campo = objeto.getClass().getDeclaredField("id");
 			} catch (NoSuchFieldException e) {
-				return; // classe sem id (ex.: o proprio RegistroID)
+				return;
 			}
 			campo.setAccessible(true);
 			RegistroID registro = registros.computeIfAbsent(objeto.getClass().getName(),
@@ -52,9 +51,6 @@ public class GeradorID {
 		List<RegistroID> resultados = q.execute();
 		RegistroID registro = resultados.isEmpty() ? new RegistroID(classe.getName()) : resultados.get(0);
 
-		// O contador so e gravado em salvar() (no desconectar). Se o programa for encerrado a forca
-		// (Ctrl+C, fechar o terminal) depois de um commit, o contador fica atrasado e os proximos
-		// objetos receberiam ids ja usados. Por isso ele nunca comeca abaixo do maior id ja gravado.
 		Query maior = manager.query();
 		maior.constrain(classe);
 		maior.descend("id").orderDescending();
@@ -70,7 +66,6 @@ public class GeradorID {
 	}
 }
 
-// Ultimo ID gerado de uma classe (inicia com 0)
 class RegistroID {
 	private String nomedaclasse;
 	private int ultimoid;

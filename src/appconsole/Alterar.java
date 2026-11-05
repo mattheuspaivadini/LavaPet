@@ -99,14 +99,14 @@ public class Alterar {
 
 		servico.setData(data);
 		servico.setValor(valor);
-		db.activate(servico, Integer.MAX_VALUE); // ver Apagar.deletarServico
+		db.activate(servico, Integer.MAX_VALUE);
 		List<Pet> antigos = new ArrayList<>(servico.getListaPets());
 		if (pets != null) {
 			antigos.forEach(servico::removerPet);
 			pets.forEach(servico::adicionarPet);
 		}
 		db.store(servico);
-		antigos.forEach(db::store); // pets desvinculados nao estao mais no cascade do servico
+		antigos.forEach(db::store);
 		db.commit();
 		System.out.println("Serviço alterado: " + servico);
 	}

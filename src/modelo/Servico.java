@@ -6,9 +6,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class Servico {
-	private int id; // gerado por util.GeradorID
+	private int id;
 	private String data;
-	// texto, nao BigDecimal: o db4o nao le BigDecimal no Java 9+ e o OME nao aceita translator
 	private String valor;
 	private List<Pet> listaPets = new ArrayList<>();
 

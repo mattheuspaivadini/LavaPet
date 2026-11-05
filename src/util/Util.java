@@ -3,7 +3,6 @@ package util;
 import com.db4o.Db4oEmbedded;
 import com.db4o.ObjectContainer;
 import com.db4o.config.EmbeddedConfiguration;
-
 import modelo.Pet;
 import modelo.Servico;
 import modelo.Tutor;
@@ -13,7 +12,7 @@ public class Util {
 
 	public static void conectar() {
 		if (manager != null)
-			return; // ja tem uma conexao
+			return;
 
 		EmbeddedConfiguration config = Db4oEmbedded.newConfiguration();
 		config.common().messageLevel(0);
@@ -26,7 +25,7 @@ public class Util {
 		config.common().activationDepth(Integer.MAX_VALUE);
 
 		manager = Db4oEmbedded.openFile(config, "lavapet.db4o");
-		GeradorID.ativar(manager); // ids automaticos para as classes com atributo "int id"
+		GeradorID.ativar(manager);
 	}
 
 	public static void desconectar() {

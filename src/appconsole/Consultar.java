@@ -139,7 +139,7 @@ public class Consultar {
 			LocalDate inicio = data(lerData("Data inicial", null));
 			LocalDate fim = inicio == null ? null : data(lerData("Data final", null));
 			if (fim == null) {
-				return; // cancelado
+				return;
 			}
 			if (!fim.isBefore(inicio)) {
 				mostrar(db, Servico.class, s -> !data(s.getData()).isBefore(inicio) && !data(s.getData()).isAfter(fim));
@@ -157,7 +157,6 @@ public class Consultar {
 		}
 	}
 
-	// --- acesso generico ao banco (Tutor, Pet e Servico tem o campo "id") ---
 	private static <T> List<T> listar(ObjectContainer db, Class<T> tipo, String titulo, String nome) {
 		System.out.println("\n------------ " + titulo + " ------------");
 		List<T> itens = db.query(tipo);
@@ -202,7 +201,6 @@ public class Consultar {
 		return s != null && s.toLowerCase().contains(trecho.toLowerCase());
 	}
 
-	// --- ciclo de vida e menus ---
 	static void iniciar(Consumer<ObjectContainer> operacao) {
 		Util.conectar();
 		try {
@@ -215,7 +213,6 @@ public class Consultar {
 		}
 	}
 
-	// opcoes: texto exibido, numerado de 1 em diante na mesma ordem de acoes
 	@SafeVarargs
 	static void menu(ObjectContainer db, String titulo, String opcoes, Consumer<ObjectContainer>... acoes) {
 		while (!encerrada()) {
@@ -233,7 +230,6 @@ public class Consultar {
 		}
 	}
 
-	// leitura do teclado: valida a entrada antes de qualquer acesso ao banco
 	private static final Scanner IN = new Scanner(System.in);
 	private static final DateTimeFormatter DATA = DateTimeFormatter.ofPattern("dd/MM/uuuu")
 			.withResolverStyle(ResolverStyle.STRICT);
@@ -276,7 +272,6 @@ public class Consultar {
 				"Número inválido; tente novamente.");
 	}
 
-	// atual == null: campo obrigatorio; senao Enter mantem o atual. null = cancelado
 	static <T> T lerComo(String prompt, T atual, Function<String, T> conversor, String erro) {
 		while (true) {
 			String s = atual == null ? texto(prompt) : ler(prompt + " (Enter mantém " + atual + ")");
@@ -309,7 +304,6 @@ public class Consultar {
 		return lerComo(prompt, atual, Consultar::dinheiro, "Valor inválido; tente novamente.");
 	}
 
-	// confirmacao antes de qualquer remocao/alteracao destrutiva
 	static boolean confirmar(String prompt) {
 		while (true) {
 			String s = ler(prompt + " (s/n)").toLowerCase();

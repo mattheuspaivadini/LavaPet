@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Pet {
-	private int id; // gerado por util.GeradorID
+	private int id;
 	private String nome;
 	private String raca;
 	private Tutor tutor;
@@ -79,6 +79,6 @@ public class Pet {
 	public String toString() {
 		return "Pet [id=" + id + ", nome=" + nome + ", raca=" + raca
 				+ ", tutor=" + (tutor == null ? "-" : tutor.getNome())
-				+ ", servicos=" + listaServicos.stream().map(s -> "#" + s.getId() + " " + s.getData()).toList() + "]";
+				+ ", servicos=" + listaServicos.stream().filter(s -> s != null).map(s -> "#" + s.getId() + " " + s.getData()).toList() + "]";
 	}
 }
