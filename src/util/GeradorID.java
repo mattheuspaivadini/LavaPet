@@ -1,93 +1,130 @@
 package util;
 
+
 import java.lang.reflect.Field;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import com.db4o.ObjectContainer;
 import com.db4o.events.EventRegistry;
 import com.db4o.events.EventRegistryFactory;
 import com.db4o.query.Query;
 
-public class GeradorID {
-	private static final Map<String, RegistroID> registros = new HashMap<>();
 
+
+public class GeradorID {
+	private static ObjectContainer sequencia; 
+
+	@SuppressWarnings("unused")
 	static void ativar(ObjectContainer manager) {
-		registros.clear();
+		if (manager == null)
+			throw new RuntimeException("Não pode ativar GeradorID - manager desconectado");
+
+		sequencia = manager;
+
+
 		EventRegistry eventRegistry = EventRegistryFactory.forObjectContainer(manager);
 
+	
 		eventRegistry.creating().addListener((event, args) -> {
-			Object objeto = args.object();
-			Field campo;
 			try {
-				campo = objeto.getClass().getDeclaredField("id");
-			} catch (NoSuchFieldException e) {
-				return;
+				Object objeto = args.object();
+				
+				Class<?> classe = objeto.getClass();
+				Field campo = null;
+				for (Field f : getAllFieldsList(classe)) {
+					if (f.getName().equals("id")) {
+						campo = f;
+						break;
+					}
+				}
+
+				if (campo != null) { // tem campo id?
+					Class<?> cls = objeto.getClass();
+					String nomedaclasse = "";
+					if(cls.getSuperclass()==Object.class)
+						nomedaclasse = objeto.getClass().getName();
+					else
+						nomedaclasse = cls.getSuperclass().getName();
+					
+					RegistroID registro = lerRegistroID(nomedaclasse); 
+					registro.incrementarID(); 
+					campo.setAccessible(true); 
+					campo.setInt(objeto, registro.getid()); 
+					sequencia.store(registro);
+				}
+			} catch (IllegalArgumentException | IllegalAccessException e) {
 			}
-			campo.setAccessible(true);
-			RegistroID registro = registros.computeIfAbsent(objeto.getClass().getName(),
-					nome -> lerRegistroID(manager, objeto.getClass(), campo));
-			registro.incrementarID();
-			try {
-				campo.setInt(objeto, registro.getid());
-			} catch (IllegalAccessException e) {
-				throw new IllegalStateException(e);
-			}
+		});
+
+
+		eventRegistry.created().addListener((event, args) -> {
+			manager.ext().purge(); // limpar cache do manager
+		});
+
+
+		eventRegistry.queryFinished().addListener((event, args) -> {
+
+			manager.ext().purge();
 		});
 	}
 
-	static void salvar(ObjectContainer manager) {
-		for (RegistroID registro : registros.values())
-			manager.store(registro);
-		manager.commit();
-		registros.clear();
-	}
-
-	private static RegistroID lerRegistroID(ObjectContainer manager, Class<?> classe, Field campo) {
-		Query q = manager.query();
+	private static RegistroID lerRegistroID(String nomeclasse) {
+		Query q = sequencia.query();
 		q.constrain(RegistroID.class);
-		q.descend("nomedaclasse").constrain(classe.getName());
+		q.descend("nomedaclasse").constrain(nomeclasse);
 		List<RegistroID> resultados = q.execute();
-		RegistroID registro = resultados.isEmpty() ? new RegistroID(classe.getName()) : resultados.get(0);
-
-		Query maior = manager.query();
-		maior.constrain(classe);
-		maior.descend("id").orderDescending();
-		List<Object> objetos = maior.execute();
-		if (!objetos.isEmpty()) {
-			try {
-				registro.garantirMinimo(campo.getInt(objetos.get(0)));
-			} catch (IllegalAccessException e) {
-				throw new IllegalStateException(e);
-			}
-		}
-		return registro;
+		if (resultados.size() > 0)
+			return resultados.getFirst();
+		else
+			return new RegistroID(nomeclasse); // novo registro de id
 	}
-}
+
+
+
+	
+	private static <X> List<Field> getAllFieldsList(final Class<X> cls) {
+		
+		final List<Field> allFields = new ArrayList<>();
+		Class<?> currentClass = cls;
+		while (currentClass != null) {
+			final Field[] declaredFields = currentClass.getDeclaredFields();
+			Collections.addAll(allFields, declaredFields);
+			currentClass = currentClass.getSuperclass();
+		}
+		return allFields;
+	}
+} 
 
 class RegistroID {
 	private String nomedaclasse;
 	private int ultimoid;
 
-	RegistroID(String nomedaclasse) {
+	public RegistroID(String nomedaclasse) {
 		this.nomedaclasse = nomedaclasse;
+		this.ultimoid = 0;
+	}
+	public RegistroID(String nomedaclasse, int valorInicial) {
+		this.nomedaclasse = nomedaclasse;
+		this.ultimoid = valorInicial;
 	}
 
-	int getid() {
+	public String getNomedaclasse() {
+		return nomedaclasse;
+	}
+
+	public int getid() {
 		return ultimoid;
 	}
 
-	void incrementarID() {
+	public void incrementarID() {
 		ultimoid++;
-	}
-
-	void garantirMinimo(int id) {
-		ultimoid = Math.max(ultimoid, id);
 	}
 
 	@Override
 	public String toString() {
 		return "RegistroID [nomedaclasse=" + nomedaclasse + ", ultimoid=" + ultimoid + "]";
 	}
-}
+
+} 
