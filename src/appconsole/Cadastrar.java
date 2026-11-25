@@ -5,6 +5,7 @@ import java.util.List;
 import com.db4o.ObjectContainer;
 import modelo.Pet;
 import modelo.Servico;
+import modelo.ServicoExpresso;
 import modelo.Tutor;
 
 public class Cadastrar {
@@ -48,15 +49,40 @@ public class Cadastrar {
 
 	public static void cadastrarServico(ObjectContainer db) {
 		String data = Consultar.lerData("Data do serviço", null);
-		BigDecimal valor = data == null ? null : Consultar.lerValor("Valor do serviço", null);
-		List<Pet> pets = valor == null ? null : Consultar.escolherPets(db);
+		if (data == null) {
+			return;
+		}
+		BigDecimal valor = Consultar.lerValor("Valor do serviço", null);
+		if (valor == null) {
+			return;
+		}
+		boolean expresso = perguntarExpresso();
+		if (Consultar.encerrada()) {
+			return;
+		}
+		List<Pet> pets = Consultar.escolherPets(db);
 		if (pets == null) {
 			return;
 		}
-		Servico servico = new Servico(data, valor);
-		pets.forEach(servico::adicionarPet);
+
+		Servico servico;
+		if (expresso) {
+			servico = new ServicoExpresso(data, valor);
+		} else {
+			servico = new Servico(data, valor);
+		}
+		for (Pet pet : pets) {
+			servico.adicionarPet(pet);
+		}
+
 		db.store(servico);
 		db.commit();
 		System.out.println("Serviço cadastrado: " + servico);
+	}
+
+	public static boolean perguntarExpresso() {
+		System.out.println("Serviço expresso dá acesso prioritário no dia.");
+		System.out.println("Serão acrescentados R$ " + ServicoExpresso.TAXA + " ao preço do serviço.");
+		return Consultar.confirmar("Deseja o serviço expresso");
 	}
 }

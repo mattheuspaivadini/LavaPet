@@ -10,7 +10,7 @@ public class Tutor {
 	private List<Pet> listaPets = new ArrayList<>();
 
 	public Tutor(String nome) {
-		this.nome = nome;
+		setNome(nome);
 	}
 
 	public int getId() {
@@ -22,6 +22,9 @@ public class Tutor {
 	}
 
 	public void setNome(String nome) {
+		if (nome == null || nome.isBlank()) {
+			throw new IllegalArgumentException("nome do tutor nao pode ser vazio");
+		}
 		this.nome = nome;
 	}
 

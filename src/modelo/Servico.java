@@ -23,6 +23,11 @@ public class Servico {
 		return id;
 	}
 
+	// usado só ao trocar Servico <-> ServicoExpresso (db4o não muda a classe de um objeto), para manter o id
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	public String getData() {
 		return data;
 	}

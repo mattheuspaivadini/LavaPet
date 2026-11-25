@@ -6,6 +6,7 @@ import java.util.List;
 import com.db4o.ObjectContainer;
 import modelo.Pet;
 import modelo.Servico;
+import modelo.ServicoExpresso;
 import modelo.Tutor;
 
 public class Alterar {
@@ -81,15 +82,29 @@ public class Alterar {
 
 	public static void alterarServico(ObjectContainer db) {
 		Servico servico = Consultar.escolherServico(db);
-		String data = servico == null ? null : Consultar.lerData("Nova data", servico.getData());
-		BigDecimal valor = data == null ? null : Consultar.lerValor("Novo valor", servico.getValor());
+		if (servico == null) {
+			return;
+		}
+		boolean eraExpresso = servico instanceof ServicoExpresso;
+		BigDecimal valorSemTaxa = servico.getValor();
+		if (eraExpresso) {
+			valorSemTaxa = valorSemTaxa.subtract(ServicoExpresso.TAXA);
+		}
+
+		String data = Consultar.lerData("Nova data", servico.getData());
+		if (data == null) {
+			return;
+		}
+		BigDecimal valor = Consultar.lerValor("Novo valor (sem a taxa expresso)", valorSemTaxa);
 		if (valor == null) {
 			return;
 		}
-		List<Pet> pets = null;
+		boolean expresso = Cadastrar.perguntarExpresso();
+
+		List<Pet> novosPets = null;
 		if (Consultar.confirmar("Deseja alterar os pets do serviço")) {
-			pets = Consultar.escolherPets(db);
-			if (pets == null) {
+			novosPets = Consultar.escolherPets(db);
+			if (novosPets == null) {
 				return;
 			}
 		}
@@ -97,17 +112,48 @@ public class Alterar {
 			return;
 		}
 
-		servico.setData(data);
-		servico.setValor(valor);
 		db.activate(servico, Integer.MAX_VALUE);
-		List<Pet> antigos = new ArrayList<>(servico.getListaPets());
-		if (pets != null) {
-			antigos.forEach(servico::removerPet);
-			pets.forEach(servico::adicionarPet);
+		List<Pet> petsAntigos = new ArrayList<>(servico.getListaPets());
+		List<Pet> petsFinais = novosPets != null ? novosPets : petsAntigos;
+		Integer idOriginal = null;
+
+		if (expresso == eraExpresso) {
+			servico.setData(data);
+			servico.setValor(expresso ? valor.add(ServicoExpresso.TAXA) : valor);
+			trocarPets(servico, petsAntigos, petsFinais);
+		} else {
+			idOriginal = servico.getId();
+			trocarPets(servico, petsAntigos, List.of());
+			db.delete(servico);
+			if (expresso) {
+				servico = new ServicoExpresso(data, valor);
+			} else {
+				servico = new Servico(data, valor);
+			}
+			trocarPets(servico, List.of(), petsFinais);
 		}
+
 		db.store(servico);
-		antigos.forEach(db::store);
+		if (idOriginal != null) {
+			servico.setId(idOriginal); // o GeradorID deu um id novo ao objeto recriado
+			db.store(servico);
+		}
+		for (Pet pet : petsAntigos) {
+			db.store(pet);
+		}
+		for (Pet pet : petsFinais) {
+			db.store(pet);
+		}
 		db.commit();
 		System.out.println("Serviço alterado: " + servico);
+	}
+
+	private static void trocarPets(Servico servico, List<Pet> remover, List<Pet> adicionar) {
+		for (Pet pet : remover) {
+			servico.removerPet(pet);
+		}
+		for (Pet pet : adicionar) {
+			servico.adicionarPet(pet);
+		}
 	}
 }
